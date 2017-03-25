@@ -6,7 +6,8 @@ close all
 M = 2; % Number of PUs
 N = 2; % Number of SUs
 
-Pr = [0.36 0.48 0.16]; % Pr[0 1 2]
+% Pr = [0.36 0.48 0.16]; % Pr[0 1 2]
+Pr = [0.9 0.05 0.05]; % Pr[0 1 2]
 
 T = 100e-6; % SU spectrum sensing period
 fs = 5e6; % SU spectrum sampling frequency
@@ -85,7 +86,8 @@ t = ts:ts:T; % Time axis
 
 % SU1 and SU2 sensed powers
 figure
-plot(Y(:,1),Y(:,2),'*')
+plot(Y(Y(:,3)==1,1),Y(Y(:,3)==1,2),'r+'), hold on
+plot(Y(Y(:,3)==0,1),Y(Y(:,3)==0,2),'bo')
 grid on
 xlabel 'SU 1'
 ylabel 'SU 2'
