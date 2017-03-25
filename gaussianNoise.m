@@ -7,7 +7,7 @@ function [n] = gaussianNoise(N,samples,noisePower)
 % samples - Number of noise samples 
 % noisePower - Noise power for each SU
 
-n = randn(N,samples); % Gaussian noise
+n = randn(N,samples) + 1i*randn(N,samples); % Gaussian noise
 
 for i=1:N
     n(i,:) = n(i,:)/rms(n(i,:)); % Normalized noise power
