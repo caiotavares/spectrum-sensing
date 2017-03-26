@@ -6,8 +6,7 @@ close all
 M = 2; % Number of PUs
 N = 2; % Number of SUs
 
-% Pr = [0.36 0.48 0.16]; % Pr[0 1 2]
-Pr = [0.9 0.05 0.05]; % Pr[0 1 2]
+Pr = [0.36 0.48 0.16]; % Pr[0 1 2]
 
 T = 100e-6; % SU spectrum sensing period
 fs = 5e6; % SU spectrum sampling frequency
@@ -16,17 +15,12 @@ samples = int32(T*fs); % Number of samples
 
 noisePSD = [-174 -174]; % Noise PSD in dBm/Hz
 noisePower = fs*(10.^(noisePSD/10))*1e-3; % Noise power at each SU receiver
-txPower = [0.2*T 0.2*T]; % PU transmission power in W
+txPower = [1e3 1e3]; % PU transmission power in W
 lambda = 1; % SS Decision threshold
 a = 4; % Path-loss exponent
 
 
 %% Distribute the SU and PU locations
-
-% Considering (1,1) as the center of the 2D plane
-
-% C_pu = 2*rand(M,2);
-% C_su = 2*rand(N,2);
 
 % Scenario I of paper
 C_pu(1,:) = [1 1];
@@ -44,11 +38,15 @@ for j=1:M
     end
 end
 
+
 %% Main Procedure
 
 realiz = 1e3;
 Y = zeros(realiz,N); % Power estimated
 S = zeros(realiz,M); % Channel availability
+
+muY = zeros(realiz,N); % Mean
+sigmaY = zeros(realiz,N); % Standard Deviation
 
 for k=1:realiz
     H = channel(M,N,d,a); % Get the channel matrix
@@ -58,19 +56,23 @@ for k=1:realiz
     PU = zeros(M,1); % PU signal received at SU
     Z = zeros(N,samples); % PU signal + noise received at SU;
     
+    %% Gaussian Approximation
+   
     for i=1:N
-        for t=1:samples
-            for j=1:M
-                PU(j) = H(j,i)*X(j,t);
-            end
-            Z(i,t) = sum(PU) + n(i,t);
+        summation = 0;
+        for j=1:M
+            summation = summation + S(k,j)*H(j,i)*txPower(j);
         end
-        Y(k,i) = (sum(abs(Z(i,:)).^2))*2/noisePower(i);
+        muY(k,i) = 2*fs*T + (2*T/noisePower(i))*summation;
+        sigmaY(k,i) = sqrt(4*fs*T + (8*T/noisePower(i))*summation);
     end
+    
 end
 
+Y = normrnd(muY,sigmaY);
 A = sum(S,2)>0; % Channel availability
 Y = [Y A]; % Last column for labels
+
 
 %% Gather the results
 
