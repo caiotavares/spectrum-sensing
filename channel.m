@@ -14,6 +14,6 @@ function [H] = channel(M,N,d,a)
 % H = sqrt(randn(M,N).^2 + randn(M,N).^2); % Rayleigh fading
 H = ones(M,N);
 
-H = H.*(1e3*d).^(-a); % Include path-loss component
+H = sqrt(H.*(1e2*d).^(-a)); % Include path-loss component
 
 end
