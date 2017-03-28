@@ -1,11 +1,5 @@
 %% Setup
 
-clear
-close all
-
-M = 1; % Number of PUs
-N = 2; % Number of SUs
-
 Pr = [0.36 0.48 0.16]; % Pr[0 1 2]
 
 T = 100e-6; % SU spectrum sensing period
@@ -19,27 +13,23 @@ txPower = [0.1 0.1]; % PU transmission power in W
 lambda = 1; % SS Decision threshold
 a = 4; % Path-loss exponent
 
-
 %% Distribute the SU and PU locations
 
-% Scenario I of paper
-% C_pu(1,:) = [1 1];
-% C_pu(2,:) = [0.5 0.5];
-% C_su(1,:) = [0.5 1];
-% C_su(2,:) = [1.5 1];
-
-% Scenario II of paper
-C_pu(1,:) = [1.5 0.5];
-C_su(1,:) = [0.5 1];
-C_su(2,:) = [1.5 1];
+% Scenarios of paper
+scenario1 = struct('PU',[1 1;0.5 0.5], 'SU', [0.5 1; 1.5 1]);
+scenario2 = struct('PU',[1.5 0.5], 'SU', [0.5 1; 1.5 1]);
 
 %% Compute the Euclidean distance for each PU-SU pair
+
+scenario = scenario1;
+M = length(scenario.PU); % Number of PUs
+N = length(scenario.SU); % Number of PUs
 
 d = zeros(M,N);
 
 for j=1:M
     for i=1:N
-        d(j,i) = norm(C_pu(j,:)-C_su(i,:));
+        d(j,i) = norm(scenario.PU(j,:)-scenario.SU(i,:));
     end
 end
 
@@ -66,31 +56,27 @@ for k=1:realiz
         muY(k,i) = 2*w*T + (2*T/noisePower(i))*summation;
         sigmaY(k,i) = sqrt(4*w*T + (8*T/noisePower(i))*summation);
     end
-    
 end
 
-Y = normrnd(muY,sigmaY);
-A = sum(S,2)>0; % Channel availability
-Y = [Y A]; % Last column for labels
+%% Gather the data
 
-%% Gather the results
-
-t = ts:ts:T; % Time axis
+% TO DO: COMPARE WITH mvnrnd
+Y = normrnd(muY,sigmaY)/1e3;
+A = sum(S,2)>0; % Channel availability labels
 
 % PU and SU location
-figure
-plot(C_pu(:,1),C_pu(:,2),'k^','MarkerFaceColor','k','MarkerSize',8), hold on
-plot(C_su(:,1),C_su(:,2),'ro','MarkerFaceColor','r','MarkerSize',8);
-grid on
-legend('PU', 'SU')
-axis([0 2 0 2])
+% figure
+% plot(C_pu(:,1),C_pu(:,2),'k^','MarkerFaceColor','k','MarkerSize',8), hold on
+% plot(C_su(:,1),C_su(:,2),'ro','MarkerFaceColor','r','MarkerSize',8);
+% grid on
+% legend('PU', 'SU')
+% axis([0 2 0 2])
 
 % SU1 and SU2 sensed powers
-figure
-plot(Y(Y(:,3)==1,1),Y(Y(:,3)==1,2),'r+'), hold on
-plot(Y(Y(:,3)==0,1),Y(Y(:,3)==0,2),'bo')
-grid on
-axis([800 1400 800 1400])
-xlabel 'Energy level of SU 1'
-ylabel 'Energy level of SU 2'
-
+% figure
+% plot(Y(A==1,1),Y(A==1,2),'r+'), hold on
+% plot(Y(A==0,1),Y(A==0,2),'bo')
+% grid on
+% axis([800 1400 800 1400])
+% xlabel 'Energy level of SU 1'
+% ylabel 'Energy level of SU 2'
