@@ -1,6 +1,9 @@
-function [x] = randisc(pmf, acc, p, N)
-
-% Returns a random number for the given pmf
+function x = randisc(pmf, acc, p, N)
+%
+% randisc - Provides a discrete random number that follows the given pmf
+%
+% x = randisc(pmf)
+% pmf - line vector with discrete probabilities for each class. sum(pmf) must be equal to 1.
 
 if (nargin == 1)
     if (sum(pmf) ~= 1)
