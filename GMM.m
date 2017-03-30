@@ -33,7 +33,9 @@ idx = cluster(gm,Y);
 figure;
 gscatter(Y(:,1),Y(:,2),idx,'br','o+');
 axis([0.8 1.4 0.8 1.4])
+grid on
 legend('Channel available','Channel unavailable','Location','NorthWest');
+title 'GMM Prediction'
 
 % Get the performance metrics
 temp = (A+1)==idx;
