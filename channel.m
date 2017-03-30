@@ -1,4 +1,4 @@
-function [H] = channel(M,N,d,a)
+function H = channel(M,N,d,a)
 
 % Calculate the channel matrix (path-loss + fading)
 %
@@ -14,6 +14,6 @@ function [H] = channel(M,N,d,a)
 % H = sqrt(randn(M,N).^2 + randn(M,N).^2); % Rayleigh fading
 H = ones(M,N);
 
-H = H.*sqrt((1e3*d).^(-a)); % Include path-loss component
+H = H.*sqrt(d.^(-a)); % Fading + path-loss (amplitude loss)
 
 end
