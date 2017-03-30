@@ -6,29 +6,20 @@ function [X,S] = PUtx(M,samples,txPower, Pr)
 % M - Number of PUs
 % samples - Number of transmission samples
 % txPower - Average transmission power for each PU
-% Pr_1 - Active probability
+% Pr - Active probability for each PU
 
-% S = zeros(1,M); % PU states
-% X = zeros(M,samples); % Signal at PU transmitters
+S = zeros(1,M); % PU states
+X = zeros(M,samples); % Signal at PU transmitters
 
-p = randisc(Pr);
-
-if (p==1) % None active
-    S = zeros(1,M);
-    X = zeros(M,samples) + 1i*zeros(M,samples);
-elseif (p==length(Pr)) % All active
-    S = ones(1,M);
-    X = randn(M,samples) + 1i*randn(M,samples);
-else
-    S = zeros(1,M);
-    activePUs = p-1;
-    perm = randperm(M);
-    S(perm(1:activePUs)) = 1;
-    X = zeros(M,samples);
-    X(perm(1:activePUs),:) = randn(activePUs,samples) + 1i*randn(activePUs,samples);
+for i=1:M
+    p = rand(1);
+    if (p <= Pr(i))
+        S(i) = 1;
+    end
 end
-    
 
+X(S'==1,:) = randn(sum(S),samples) + 1i*randn(sum(S),samples);
+    
 for j=1:M
     power = rms(X(j,:));
     if (power>0)
@@ -36,7 +27,5 @@ for j=1:M
     end
     X(j,:) = X(j,:)*sqrt(txPower(j));
 end
-
-
 
 end
