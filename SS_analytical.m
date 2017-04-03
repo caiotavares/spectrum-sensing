@@ -1,11 +1,12 @@
-function [Y,A] = analytical_SS(scenario, txPower, T, w, noisePSD)
+function [Y,A,muY,sigmaY] = SS_analytical(scenario, txPower, T, w, noisePSD_dBm)
 
 M = length(scenario.PU); % Number of PUs
 N = length(scenario.SU); % Number of PUs
-noisePower = (w*(10.^(noisePSD/10))*1e-3)*ones(1,N); % Noise power at each SU receiver
+noisePSD_W = (10.^(noisePSD_dBm/10))*1e-3;
+noisePower = w*noisePSD_W*ones(1,N); % Noise power at each SU receiver
 txPower = txPower*ones(1,M);
 a = 4; % Path-loss exponent
-samples = int32(T*w); % Number of samples
+samples = T*w; % Number of samples
 
 %% Compute the Euclidean distance for each PU-SU pair
 d = zeros(M,N);
@@ -13,16 +14,19 @@ d = zeros(M,N);
 for j=1:M
     for i=1:N
         d(j,i) = norm(scenario.PU(j,:)-scenario.SU(i,:));
+        if (d(j,i) == 0)
+            d(j,i) = 1;
+        end
     end
 end
 
-%% Main Procedure
+%% Main 
 
-realiz = 5e2;
+realiz = 1e3;
+Y = zeros(realiz, N); % Sensed energy
 S = zeros(realiz,M); % Channel availability
 muY = zeros(realiz,N); % Mean
 sigmaY = zeros(realiz,N); % Standard Deviation
-Y = zeros(realiz, N); % Sensed energy
 
 for k=1:realiz
     H = channel(M,N,d,a); % Get the channel matrix
@@ -30,7 +34,6 @@ for k=1:realiz
     [~, S(k,:)] = PUtx(M,samples,txPower, scenario.PR); % Get the PU states
     
     % Multivariate Gaussian Approximation
-   
     for i=1:N
         summation = 0;
         for j=1:M
