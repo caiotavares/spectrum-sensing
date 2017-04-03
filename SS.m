@@ -14,22 +14,56 @@ txPower = 0.1; % PU transmission power in W
 %% Distribute the SU and PU locations
 
 % Scenarios of paper
-scenario1 = struct('PU',[1 1;0.5 0.5]*1e3, 'SU', [0.5 1; 1.5 1]*1e3,...
-                   'PR',[0.36 0.48 0.16]);
-scenario2 = struct('PU',[1.5 0.5]*1e3, 'SU', [0.5 1; 1.5 1]*1e3,...
+scenario1 = struct('PU',[1.0 1.0 ; 0.5 0.5]*1e3,'SU',[0.5 1.0 ; 1.5 1.0]*1e3,...
+                   'PR',[0.5 0.5]);
+scenario2 = struct('PU',[1.5 0.5]*1e3,'SU',[0.5 1.0 ; 1.5 1.0]*1e3,...
                    'PR',[0.5 0.5]);
                
-%% Main Procedure
+%% Spectrum Sensing Procedure
 
-[Y_mcs,A_mcs,PU,n,Z,SNR] = SS_MCS(scenario1,txPower, T, w, meanNoisePSD_dBm, varNoisePSD_dBm);
-[Y_art,A_art] = SS_analytical(scenario1, txPower/T, T, w, meanNoisePSD_dBm);
-               
-% t = ts:ts:T; % Time axis
-% index = find(sum(S,2)==N,1); % Get first occurrence of all PUs active
+[X_mcs,A_mcs,PU,n,Z,SNR] = SS_MCS(scenario1,txPower, T, w, meanNoisePSD_dBm, varNoisePSD_dBm);
+[X_art,A_art,muY,sigmaY] = SS_analytical(scenario1, txPower/T, T, w, meanNoisePSD_dBm);
+
+%% GMM 
+
+X = X_art;
+A = A_art;
+
+% start = struct('mu',[1 1],'Sigma',diag(sigmaY),'ComponentProportion',[0.25 0.75]);
+start = A+1;
+[Y,GM] = GMM(X,2,start);
+
+% Get the performance metrics
+temp = (A+1)==Y;
+correct = length(temp(temp==1));
+incorrect = length(A)-correct;
+acc = correct/length(A);
 
 %% Plot results
 
+% Build the axis limits
+m1 = mean(X(:,1));
+d1 = std(X(:,1));
+m2 = mean(X(:,2));
+d2 = std(X(:,2));
+axisLimits = round([m1-(3*d1) m1+(3*d1) m2-(3*d2) m2+(3*d2)],2);
+
+% GMM Predicted Channel Status
+figure;
+gscatter(X(:,1),X(:,2),Y,'br','o+');
+axis(axisLimits)
+grid on
+hold on
+fcontour(@(x,y)pdf(GM,[x y]),axisLimits);
+title('Predicted Scatter Plot and GMM Contour')
+legend('Channel available','Channel unavailable','Location','NorthWest');
+xlabel 'Energy level of SU 1'
+ylabel 'Energy level of SU 2'
+hold off
+
 % Received PU signal + noise in time
+% t = ts:ts:T; % Time axis
+% index = find(sum(S,2)==N,1); % Get first occurrence of all PUs active
 % figure
 % plot(t,abs(reshape(PU(1,:,index),1,samples)),'b',...
 %      t,abs(reshape(n(1,:,index),1,samples)),'r');
@@ -46,25 +80,19 @@ scenario2 = struct('PU',[1.5 0.5]*1e3, 'SU', [0.5 1; 1.5 1]*1e3,...
 
 % Sensed power for 1 SU
 % figure
-% plot(Y(A==1),Y(A==1),'r+'), hold on
-% plot(Y(A==0),Y(A==0),'bo')
+% plot(X(A==1),X(A==1),'r+'), hold on
+% plot(X(A==0),X(A==0),'bo')
 % grid on
 % hold off
 
 % SU1 and SU2 sensed powers (MCS)
 figure
-plot(Y_mcs(A_mcs==1,1),Y_mcs(A_mcs==1,2),'r+'), hold on
-plot(Y_mcs(A_mcs==0,1),Y_mcs(A_mcs==0,2),'bo')
+plot(X(A==1,1),X(A==1,2),'r+'), hold on
+plot(X(A==0,1),X(A==0,2),'bo')
+axis(axisLimits)
 grid on
-hold off
+title('Actual Channel States')
+legend('Channel available','Channel unavailable','Location','NorthWest');
 xlabel 'Energy level of SU 1'
 ylabel 'Energy level of SU 2'
-
-% SU1 and SU2 sensed powers (Analytical)
-figure
-plot(Y_art(A_art==1,1),Y_art(A_art==1,2),'r+'), hold on
-plot(Y_art(A_art==0,1),Y_art(A_art==0,2),'bo')
-grid on
 hold off
-xlabel 'Energy level of SU 1'
-ylabel 'Energy level of SU 2'
