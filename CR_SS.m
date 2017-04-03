@@ -1,29 +1,24 @@
 %% Setup
 
-clear
-close all
-
 T = 100e-6; % SU spectrum sensing period
 w = 5e6; % SU spectrum sampling frequency
 ts= 1/w; % Spectrum sampling period
-
 meanNoisePSD_dBm = -160; % Noise PSD in dBm/Hz
 varNoisePSD_dBm = 1; % Noise PSD variance (non-static noise)
 txPower = 0.1; % PU transmission power in W
 
 %% Distribute the SU and PU locations
 
-scenario1 = struct('PU',[1 1;0.5 0.5]*1e3,'SU',[0.5 1;1.5 1]*1e3,...
+% Scenarios of paper
+scenario1 = struct('PU',[1 1;0.5 0.5]*1e3, 'SU', [0.5 1; 1.5 1]*1e3,...
+                   'PR',[0.36 0.48 0.16]);
+scenario2 = struct('PU',[1.5 0.5]*1e3, 'SU', [0.5 1; 1.5 1]*1e3,...
                    'PR',[0.5 0.5]);
-scenario2 = struct('PU',[1 1; 0 1]*1e3,'SU',[0.5 1]*1e3,...
-                   'PR',[0.5 0.5]);
-
 %% Main Procedure
 
 [Y,A,PU,n,Z,SNR] = MCS(scenario1,txPower, T, w, meanNoisePSD_dBm, varNoisePSD_dBm);
-
-%% Gather the results
-
+[Y,A] = analytical_SS(scenario1, txPower, T, w, noisePSD);
+               
 % t = ts:ts:T; % Time axis
 % index = find(sum(S,2)==N,1); % Get first occurrence of all PUs active
 
@@ -55,5 +50,5 @@ plot(Y(A==1,1),Y(A==1,2),'r+'), hold on
 plot(Y(A==0,1),Y(A==0,2),'bo')
 grid on
 hold off
-xlabel 'SU 1'
-ylabel 'SU 2'
+xlabel 'Energy level of SU 1'
+ylabel 'Energy level of SU 2'
