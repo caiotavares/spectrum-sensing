@@ -20,7 +20,7 @@ for j=1:M
     end
 end
 
-%% MCS
+%% Main
 
 realiz = 1e3;
 Y = zeros(realiz,N); % Power estimated

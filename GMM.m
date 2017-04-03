@@ -1,14 +1,3 @@
-%% Setup
-
-clear
-close all
-
-% Run CR_SS to make the data.
-CR_SS;
-
-% Keep only the predictors and the label
-clearvars -except Y A
-
 % Fit the GM model
 options = statset('Display','final');
 gm = fitgmdist(Y,2,'Options',options,'Start',A+1);
@@ -18,7 +7,7 @@ figure;
 scatter(Y(:,1),Y(:,2),10,'bo')
 axis([0.8 1.4 0.8 1.4])
 hold on
-ezcontour(@(x,y)pdf(gm,[x y]),[0.8 1.4],[0.8 1.4]);
+fcontour(@(x,y)pdf(gm,[x y]),[0.8 1.4],[0.8 1.4]);
 title('Scatter Plot and Fitted GMM Contour')
 xlabel 'SU 1'
 ylabel 'SU 2'

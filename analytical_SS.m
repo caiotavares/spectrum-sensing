@@ -29,7 +29,7 @@ for k=1:realiz
     G = H.^2; % Power loss
     [~, S(k,:)] = PUtx(M,samples,txPower, scenario.PR); % Get the PU states
     
-    %% Multivariate Gaussian Approximation
+    % Multivariate Gaussian Approximation
    
     for i=1:N
         summation = 0;
