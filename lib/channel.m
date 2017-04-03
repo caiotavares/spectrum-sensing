@@ -1,4 +1,4 @@
-function H = channel(M,N,d,a)
+function H = channel(M,N,d,a,type)
 
 % Calculate the channel matrix (path-loss + fading)
 %
@@ -9,8 +9,11 @@ function H = channel(M,N,d,a)
 % d: Euclidean distance between each PU-SU pair
 % a: Path-loss exponent
 
-% H = sqrt(randn(M,N).^2 + randn(M,N).^2); % Rayleigh fading
-H = ones(M,N);
+if (nargin > 4 && strcmp(type,'ray'))
+    H = sqrt(randn(M,N).^2 + randn(M,N).^2); % Rayleigh fading
+else
+    H = ones(M,N);
+end
 
 H = H.*sqrt(d.^(-a)); % Fading + path-loss (amplitude loss)
 

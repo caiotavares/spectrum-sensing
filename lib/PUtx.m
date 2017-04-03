@@ -21,9 +21,9 @@ end
 X(S'==1,:) = randn(sum(S),samples) + 1i*randn(sum(S),samples);
     
 for j=1:M
-    power = rms(X(j,:));
-    if (power>0)
-        X(j,:) = X(j,:)/power; % Normalized power
+    meanAmplitude = rms(X(j,:));
+    if (meanAmplitude>0)
+        X(j,:) = X(j,:)/meanAmplitude; % Normalized power
     end
     X(j,:) = X(j,:)*sqrt(txPower(j));
 end
