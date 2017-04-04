@@ -7,7 +7,7 @@ addpath('lib');
 T = 100e-6; % SU spectrum sensing period
 w = 5e6; % SU spectrum sampling frequency
 ts = 1/w; % Spectrum sampling period
-meanNoisePSD_dBm = -174; % Noise PSD in dBm/Hz
+meanNoisePSD_dBm = -154; % Noise PSD in dBm/Hz
 varNoisePSD_dBm = 1; % Noise PSD variance (non-static noise)
 txPower = 0.1; % PU transmission power in W
 
@@ -21,27 +21,27 @@ scenario2 = struct('PU',[1.5 0.5]*1e3,'SU',[0.5 1.0 ; 1.5 1.0]*1e3,...
                
 %% Spectrum Sensing Procedure
 
-[X_mcs,A_mcs,PU,n,Z,SNR] = SS_MCS(scenario1,txPower, T, w, meanNoisePSD_dBm, varNoisePSD_dBm);
+[X_mcs,A_mcs,PU,n,Z,SNR_dB] = SS_MCS(scenario1,txPower, T, w, meanNoisePSD_dBm, varNoisePSD_dBm);
 [X_art,A_art,muY,sigmaY] = SS_analytical(scenario1, txPower/T, T, w, meanNoisePSD_dBm);
+
+X = X_mcs;
+A = A_mcs;
 
 %% GMM 
 
-X = X_art;
-A = A_art;
-
-% start = struct('mu',[1 1],'Sigma',diag(sigmaY),'ComponentProportion',[0.25 0.75]);
-start = A+1;
-[Y,GM] = GMM(X,2,start);
-
-% Get the performance metrics
-temp = (A+1)==Y;
-correct = length(temp(temp==1));
-incorrect = length(A)-correct;
-acc = correct/length(A);
+% % start = struct('mu',[1 1],'Sigma',diag(sigmaY),'ComponentProportion',[0.25 0.75]);
+% start = A+1;
+% [Y,GM] = GMM(X,2,start);
+% 
+% % Get the performance metrics
+% temp = (A+1)==Y;
+% correct = length(temp(temp==1));
+% incorrect = length(A)-correct;
+% acc = correct/length(A);
 
 %% Plot results
 
-% Build the axis limits
+% Define the axis limits
 m1 = mean(X(:,1));
 d1 = std(X(:,1));
 m2 = mean(X(:,2));
@@ -49,17 +49,17 @@ d2 = std(X(:,2));
 axisLimits = round([m1-(3*d1) m1+(3*d1) m2-(3*d2) m2+(3*d2)],2);
 
 % GMM Predicted Channel Status
-figure;
-gscatter(X(:,1),X(:,2),Y,'br','o+');
-axis(axisLimits)
-grid on
-hold on
-fcontour(@(x,y)pdf(GM,[x y]),axisLimits);
-title('Predicted Scatter Plot and GMM Contour')
-legend('Channel available','Channel unavailable','Location','NorthWest');
-xlabel 'Energy level of SU 1'
-ylabel 'Energy level of SU 2'
-hold off
+% figure;
+% gscatter(X(:,1),X(:,2),Y,'br','o+');
+% axis(axisLimits)
+% grid on
+% hold on
+% fcontour(@(x,y)pdf(GM,[x y]),axisLimits);
+% title('Predicted Scatter Plot and GMM Contour')
+% legend('Channel available','Channel unavailable','Location','NorthWest');
+% xlabel 'Energy level of SU 1'
+% ylabel 'Energy level of SU 2'
+% hold off
 
 % Received PU signal + noise in time
 % t = ts:ts:T; % Time axis
@@ -85,13 +85,13 @@ hold off
 % grid on
 % hold off
 
-% SU1 and SU2 sensed powers (MCS)
+% SU1 and SU2 sensed powers
 figure
 plot(X(A==1,1),X(A==1,2),'r+'), hold on
 plot(X(A==0,1),X(A==0,2),'bo')
 axis(axisLimits)
 grid on
-title('Actual Channel States')
+title('Channel States')
 legend('Channel available','Channel unavailable','Location','NorthWest');
 xlabel 'Energy level of SU 1'
 ylabel 'Energy level of SU 2'
