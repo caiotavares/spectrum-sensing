@@ -4,14 +4,14 @@ clear
 close all
 addpath('lib');
 
+realiz = 1e3;
 T = 100e-6; % SU spectrum sensing period
-w = 5e6; % SU spectrum sampling frequency
-ts = 1/w; % Spectrum sampling period
-meanNoisePSD_dBm = -154; % Noise PSD in dBm/Hz
+w = 5e6; % SU spectrum sensing bandwidth
+meanNoisePSD_dBm = -167; % Noise PSD in dBm/Hz
 varNoisePSD_dBm = 1; % Noise PSD variance (non-static noise)
 txPower = 0.1; % PU transmission power in W
 
-%% Distribute the SU and PU locations
+%% Distribute the SU and PU locations and active probability
 
 % Scenarios of paper
 scenario1 = struct('PU',[1.0 1.0 ; 0.5 0.5]*1e3,'SU',[0.5 1.0 ; 1.5 1.0]*1e3,...
@@ -19,10 +19,15 @@ scenario1 = struct('PU',[1.0 1.0 ; 0.5 0.5]*1e3,'SU',[0.5 1.0 ; 1.5 1.0]*1e3,...
 scenario2 = struct('PU',[1.5 0.5]*1e3,'SU',[0.5 1.0 ; 1.5 1.0]*1e3,...
                    'PR',[0.5 0.5]);
                
+myScenario = struct();
+myScenario.PU = [1.0 1.0]*1e3;
+myScenario.SU = [0.0 1.0 ; 2.0 1.0]*1e3;
+myScenario.PR = 0.5;
+               
 %% Spectrum Sensing Procedure
 
-[X_mcs,A_mcs,PU,n,Z,SNR_dB] = SS_MCS(scenario1,txPower, T, w, meanNoisePSD_dBm, varNoisePSD_dBm);
-[X_art,A_art,muY,sigmaY] = SS_analytical(scenario1, txPower/T, T, w, meanNoisePSD_dBm);
+[X_mcs,A_mcs,PU,n,Z,SNR_dB] = SS_MCS(myScenario,txPower, T, w, meanNoisePSD_dBm, varNoisePSD_dBm,realiz);
+% [X_art,A_art,muY,sigmaY] = SS_analytical(myScenario, txPower/T, T, w, meanNoisePSD_dBm, realiz);
 
 X = X_mcs;
 A = A_mcs;
@@ -93,6 +98,6 @@ axis(axisLimits)
 grid on
 title('Channel States')
 legend('Channel available','Channel unavailable','Location','NorthWest');
-xlabel 'Energy level of SU 1'
-ylabel 'Energy level of SU 2'
+xlabel 'Normalized energy level of SU 1'
+ylabel 'Normalized energy level of SU 2'
 hold off
