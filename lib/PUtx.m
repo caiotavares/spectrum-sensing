@@ -8,6 +8,10 @@ function [X,S] = PUtx(M,samples,txPower, Pr)
 % txPower - Average transmission power for each PU
 % Pr - Active probability for each PU
 
+if (length(Pr) ~= M)
+    error('Erro in the probability vector')
+end
+
 S = zeros(1,M); % PU states
 X = zeros(M,samples); % Signal at PU transmitters
 
