@@ -1,11 +1,11 @@
-function [Y,A,PU,n,Z,SNR_dB] = SS_MCS(scenario,txPower, T, w, meanNoisePSD_dBm, varNoisePSD_dBm)
+function [Y,A,PU,n,Z,SNR_dB] = SS_MCS(scenario,txPower, T, w, meanNoisePSD_dBm, varNoisePSD_dBm,realiz)
 
 M = size(scenario.PU,1); % Number of PUs
 N = size(scenario.SU,1); % Number of SUs
 meanNoisePSD_W = 10^(meanNoisePSD_dBm/10)*1e-3; % Noise PSD in W/Hz
 txPower = txPower*ones(1,M);
 a = 4; % Path-loss exponent
-samples = T*w; % Number of samples
+samples = 2*T*w; % Number of samples
 
 %% Compute the Euclidean distance for each PU-SU pair
 d = zeros(M,N);
@@ -21,7 +21,6 @@ end
 
 %% Main
 
-realiz = 1e3;
 Y = zeros(realiz,N); % Power estimated
 S = zeros(realiz,M); % Channel availability
 PU = zeros(N,samples,realiz); % PUs signal received at SU

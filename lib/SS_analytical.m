@@ -1,12 +1,12 @@
-function [Y,A,muY,sigmaY] = SS_analytical(scenario, txPower, T, w, noisePSD_dBm)
+function [Y,A,muY,sigmaY] = SS_analytical(scenario, txPower, T, w, noisePSD_dBm,realiz)
 
-M = length(scenario.PU); % Number of PUs
-N = length(scenario.SU); % Number of PUs
+M = size(scenario.PU,1); % Number of PUs
+N = size(scenario.SU,1); % Number of PUs
 noisePSD_W = (10.^(noisePSD_dBm/10))*1e-3;
 noisePower = w*noisePSD_W*ones(1,N); % Noise power at each SU receiver
 txPower = txPower*ones(1,M);
 a = 4; % Path-loss exponent
-samples = T*w; % Number of samples
+samples = 2*T*w; % Number of samples
 
 %% Compute the Euclidean distance for each PU-SU pair
 d = zeros(M,N);
@@ -22,7 +22,6 @@ end
 
 %% Main 
 
-realiz = 1e3;
 Y = zeros(realiz, N); % Sensed energy
 S = zeros(realiz,M); % Channel availability
 muY = zeros(realiz,N); % Mean
