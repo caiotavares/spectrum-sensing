@@ -7,8 +7,12 @@ addpath('lib');
 realiz = 1e3;
 T = 100e-6; % SU spectrum sensing period
 w = 5e6; % SU spectrum sensing bandwidth
+N = 2*w*T; % Number of samples
 meanNoisePSD_dBm = -167; % Noise PSD in dBm/Hz
-varNoisePSD_dBm = 1; % Noise PSD variance (non-static noise)
+sigmaNoisePSD_dBm = -172; % Noise PSD standard deviation in dBm (non-static noise)
+meanNoisePSD_W = 10^(meanNoisePSD_dBm/10)*1e-3; % Mean noise PSD in W/Hz
+sigmaNoisePSD_W = 10^(sigmaNoisePSD_dBm/10)*1e-3; % Noise PSD standard deviation in W/Hz
+varNoisePSD_W = sigmaNoisePSD_W^2; % Noise PSD variance in W/Hz
 txPower = 0.1; % PU transmission power in W
 
 %% Distribute the SU and PU locations and active probability
@@ -26,11 +30,16 @@ myScenario.PR = 0.5;
                
 %% Spectrum Sensing Procedure
 
-[X_mcs,A_mcs,PU,n,Z,SNR_dB] = SS_MCS(myScenario,txPower, T, w, meanNoisePSD_dBm, varNoisePSD_dBm,realiz);
+[X_mcs,A_mcs,PU,n,Z,SNR_dB] = SS_MCS(myScenario,txPower, T, w, meanNoisePSD_W, varNoisePSD_W,realiz);
 % [X_art,A_art,muY,sigmaY] = SS_analytical(myScenario, txPower/T, T, w, meanNoisePSD_dBm, realiz);
 
 X = X_mcs;
 A = A_mcs;
+
+%% PU detection procedure
+Pfa = 0.5;
+% Calculate the lambda threshold value
+lambda = 2*(w*meanNoisePSD_W)*chi2inv(Pfa,N/2);
 
 %% GMM 
 
