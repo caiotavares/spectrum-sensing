@@ -22,14 +22,8 @@ for i=1:M
     end
 end
 
-X(S'==1,:) = randn(sum(S),samples) + 1i*randn(sum(S),samples);
-    
-for j=1:M
-    meanAmplitude = rms(X(j,:));
-    if (meanAmplitude>0)
-        X(j,:) = X(j,:)/meanAmplitude; % Normalized power
-    end
-    X(j,:) = X(j,:)*sqrt(txPower(j));
+if (sum(S)>0)
+    X(S'==1,:) = normrnd(0,sqrt(txPower(S'==1)),sum(S),samples);
 end
 
 end
