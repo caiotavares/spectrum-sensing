@@ -4,7 +4,7 @@ M = size(scenario.PU,1); % Number of PUs
 N = size(scenario.SU,1); % Number of SUs
 txPower = txPower*ones(1,M);
 a = 4; % Path-loss exponent
-samples = 2*T*w; % Number of samples
+samples = round(2*T*w); % Number of samples
 
 %% Compute the Euclidean distance for each PU-SU pair
 d = zeros(M,N);
@@ -30,8 +30,8 @@ noisePower = zeros(N,realiz);
 
 for k=1:realiz
     noisePower(:,k) = w*mvnrnd(meanNoisePSD*ones(N,1),diag(varNoisePSD*ones(N,1)))';
-    H = channel(M,N,d,a); % Power loss
     n(:,:,k) = gaussianNoise(N,samples,noisePower(:,k)); % Get the noise at SU receivers
+    H = channel(M,N,d,a); % Power loss
     [X, S(k,:)] = PUtx(M,samples,txPower, scenario.PR); % Get the PU transmissions
     
     for i=1:N
@@ -42,7 +42,7 @@ for k=1:realiz
             Z(i,t,k) = PU(i,t,k) + n(i,t,k);
         end
         SNR_dB(i,k) = 10*log10(mean(abs(PU(i,:,k)).^2)/noisePower(i,k));
-        Y(k,i) = sum(abs(Z(i,:,k)).^2)/(w*meanNoisePSD*samples);
+        Y(k,i) = sum(Z(i,:,k).^2)/(meanNoisePSD*w); % Normalized by noise variance
     end
 end
 
