@@ -4,16 +4,14 @@ clear
 close all
 addpath('lib');
 
-realiz = 1e3;
-T = 100e-6; % SU spectrum sensing period
+realiz = 5e2;
+T = 10e-6; % SU spectrum sensing period
 w = 5e6; % SU spectrum sensing bandwidth
-N = 2*w*T; % Number of samples
+N = round(2*w*T); % Number of samples
 meanNoisePSD_dBm = -167; % Noise PSD in dBm/Hz
 sigmaNoisePSD_dBm = -172; % Noise PSD standard deviation in dBm (non-static noise)
-meanNoisePSD_W = 10^(meanNoisePSD_dBm/10)*1e-3; % Mean noise PSD in W/Hz
-sigmaNoisePSD_W = 10^(sigmaNoisePSD_dBm/10)*1e-3; % Noise PSD standard deviation in W/Hz
-varNoisePSD_W = sigmaNoisePSD_W^2; % Noise PSD variance in W/Hz
 txPower = 0.1; % PU transmission power in W
+Pfa = 0.05; % Target false alarm probability
 
 %% Distribute the SU and PU locations and active probability
 
@@ -30,6 +28,10 @@ myScenario.PR = 0.5;
                
 %% Spectrum Sensing Procedure
 
+meanNoisePSD_W = 10^(meanNoisePSD_dBm/10)*1e-3; % Mean noise PSD in W/Hz
+sigmaNoisePSD_W = 10^(sigmaNoisePSD_dBm/10)*1e-3; % Noise PSD standard deviation in W/Hz
+varNoisePSD_W = sigmaNoisePSD_W^2; % Noise PSD variance in W/Hz
+
 [X_mcs,A_mcs,PU,n,Z,SNR_dB] = SS_MCS(myScenario,txPower, T, w, meanNoisePSD_W, varNoisePSD_W,realiz);
 % [X_art,A_art,muY,sigmaY] = SS_analytical(myScenario, txPower/T, T, w, meanNoisePSD_dBm, realiz);
 
@@ -37,9 +39,11 @@ X = X_mcs;
 A = A_mcs;
 
 %% PU detection procedure
-Pfa = 0.5;
-% Calculate the lambda threshold value
-lambda = 2*(w*meanNoisePSD_W)*chi2inv(Pfa,N/2);
+
+% Calculate the lambda threshold value using the Incomplete Gamma function
+lambda = 2*gammaincinv(Pfa,N/2,'upper');
+P_or = sum(X > lambda,2) > 0; % SU predictions on channel occupancy (OR rule)
+P_and = sum(X > lambda,2) == size(X,2); % SU predictions on channel occupancy (AND rule)
 
 %% GMM 
 
@@ -99,14 +103,38 @@ axisLimits = round([m1-(3*d1) m1+(3*d1) m2-(3*d2) m2+(3*d2)],2);
 % grid on
 % hold off
 
-% SU1 and SU2 sensed powers
+% Actual channel states
 figure
 plot(X(A==1,1),X(A==1,2),'r+'), hold on
 plot(X(A==0,1),X(A==0,2),'bo')
 axis(axisLimits)
 grid on
-title('Channel States')
-legend('Channel available','Channel unavailable','Location','NorthWest');
+title('Actual Channel States')
+legend('Channel unavailable','Channel available','Location','NorthWest');
+xlabel 'Normalized energy level of SU 1'
+ylabel 'Normalized energy level of SU 2'
+hold off
+
+% SU1 and SU2 predicted channel states (AND rule)
+figure
+plot(X(P_and==1,1),X(P_and==1,2),'r+'), hold on
+plot(X(P_and==0,1),X(P_and==0,2),'bo')
+axis(axisLimits)
+grid on
+title('Predicted Channel States (AND rule)')
+legend('Channel unavailable','Channel available','Location','NorthWest');
+xlabel 'Normalized energy level of SU 1'
+ylabel 'Normalized energy level of SU 2'
+hold off
+
+% SU1 and SU2 predicted channel states (OR rule)
+figure
+plot(X(P_or==1,1),X(P_or==1,2),'r+'), hold on
+plot(X(P_or==0,1),X(P_or==0,2),'bo')
+axis(axisLimits)
+grid on
+title('Predicted Channel States (OR rule)')
+legend('Channel unavailable','Channel available','Location','NorthWest');
 xlabel 'Normalized energy level of SU 1'
 ylabel 'Normalized energy level of SU 2'
 hold off
