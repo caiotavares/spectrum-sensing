@@ -4,14 +4,12 @@ clear
 close all
 addpath('lib');
 
-realiz = 1e3;
+realiz = 5e2;
 T = 10e-6; % SU spectrum sensing period
 w = 5e6; % SU spectrum sensing bandwidth
 N = round(2*w*T); % Number of samples
-meanNoisePSD_dBm = -165; % Noise PSD in dBm/Hz
-sigmaNoisePSD_dBm = -200; % Noise PSD standard deviation in dBm (non-static noise)
-txPower = 0.1; % PU transmission power in W
 Pfa = 0.05; % Target false alarm probability
+NoisePSD_dBm = -163; % Noise PSD in dBm/Hz
 
 %% Distribute the SU and PU locations and active probability
 
@@ -24,15 +22,13 @@ scenario2 = struct('PU',[1.5 0.5]*1e3,'SU',[0.5 1.0 ; 1.5 1.0]*1e3,...
 myScenario = struct();
 myScenario.PU = [1.0 1.0]*1e3;
 myScenario.SU = [0.0 1.0 ; 2.0 1.0]*1e3;
-myScenario.PR = 0.5;
+myScenario.Pr = 0.5;
+myScenario.NoisePSD = 10^(NoisePSD_dBm/10)*1e-3; % Noise PSD in W/Hz
+myScenario.TXPower = 0.1; % PU transmission power in W
                
 %% Spectrum Sensing Procedure
 
-meanNoisePSD_W = 10^(meanNoisePSD_dBm/10)*1e-3; % Mean noise PSD in W/Hz
-sigmaNoisePSD_W = 10^(sigmaNoisePSD_dBm/10)*1e-3; % Noise PSD standard deviation in W/Hz
-varNoisePSD_W = sigmaNoisePSD_W^2; % Noise PSD variance in W/Hz
-
-[X_mcs,A_mcs,PU,n,Z,SNR_dB] = SS_MCS(myScenario,txPower, T, w, meanNoisePSD_W, varNoisePSD_W,realiz);
+[X_mcs,A_mcs,PU,n,Z,SNR_dB] = SS_MCS(myScenario, T, w,realiz);
 % [X_art,A_art,muY,sigmaY] = SS_analytical(myScenario, txPower/T, T, w, meanNoisePSD_dBm, realiz);
 
 X = X_mcs;
@@ -133,28 +129,28 @@ hold off
 
 % SU1 and SU2 predicted channel states (AND rule)
 figure
-plot(X(detected_and,1),X(detected_and,2),'r+'), hold on
-plot(X(falseAlarm_and,1),X(falseAlarm_and,2),'b+'), hold on
-plot(X(available_and,1),X(available_and,2),'bo'), hold on
-plot(X(misdetected_and,1),X(misdetected_and,2),'ro')
+plot(X(detected_and,1),X(detected_and,2),'r+', 'DisplayName', 'Channel unavailable'), hold on
+legend('-DynamicLegend','Location','Northwest');
+plot(X(falseAlarm_and,1),X(falseAlarm_and,2),'b+', 'DisplayName', 'False alarm'), hold on
+plot(X(available_and,1),X(available_and,2),'bo', 'DisplayName', 'Channel available'), hold on
+plot(X(misdetected_and,1),X(misdetected_and,2),'ro', 'DisplayName', 'Misdetection')
 axis(axisLimits)
 grid on
 title('Predicted Channel States (AND rule)')
-legend('Channel unavailable','False alarm','Channel available','Misdetection','Location','NorthWest');
 xlabel 'Normalized energy level of SU 1'
 ylabel 'Normalized energy level of SU 2'
 hold off
 
 % SU1 and SU2 predicted channel states (OR rule)
 figure
-plot(X(detected_or,1),X(detected_or,2),'r+'), hold on
-plot(X(falseAlarm_or,1),X(falseAlarm_or,2),'b+'), hold on
-plot(X(available_or,1),X(available_or,2),'bo'), hold on
-plot(X(misdetected_or,1),X(misdetected_or,2),'ro')
+plot(X(detected_or,1),X(detected_or,2),'r+', 'DisplayName', 'Channel unavailable'), hold on
+legend('-DynamicLegend','Location','Northwest');
+plot(X(falseAlarm_or,1),X(falseAlarm_or,2),'b+', 'DisplayName', 'False alarm'), hold on
+plot(X(available_or,1),X(available_or,2),'bo', 'DisplayName', 'Channel available'), hold on
+plot(X(misdetected_or,1),X(misdetected_or,2),'ro', 'DisplayName', 'Misdetection')
 axis(axisLimits)
 grid on
 title('Predicted Channel States (OR rule)')
-legend('Channel unavailable','False alarm','Channel available','Misdetection','Location','NorthWest');
 xlabel 'Normalized energy level of SU 1'
 ylabel 'Normalized energy level of SU 2'
 hold off
