@@ -42,7 +42,8 @@ for k=1:realiz
             Z(i,t,k) = PU(i,t,k) + n(i,t,k);
         end
         SNR_dB(i,k) = 10*log10(mean(abs(PU(i,:,k)).^2)/noisePower(i,k));
-        Y(k,i) = sum(Z(i,:,k).^2)/(meanNoisePSD*w); % Normalized by noise variance
+%         Y(k,i) = sum(Z(i,:,k).^2)/(meanNoisePSD*w); % Normalized by mean noise variance
+        Y(k,i) = sum(Z(i,:,k).^2)/(noisePower(i,k)); % Normalized by noise variance
     end
 end
 
