@@ -4,12 +4,12 @@ clear
 close all
 addpath('lib');
 
-realiz = 5e2;
+realiz = 1e3;
 T = 10e-6; % SU spectrum sensing period
 w = 5e6; % SU spectrum sensing bandwidth
 N = round(2*w*T); % Number of samples
-meanNoisePSD_dBm = -167; % Noise PSD in dBm/Hz
-sigmaNoisePSD_dBm = -172; % Noise PSD standard deviation in dBm (non-static noise)
+meanNoisePSD_dBm = -165; % Noise PSD in dBm/Hz
+sigmaNoisePSD_dBm = -200; % Noise PSD standard deviation in dBm (non-static noise)
 txPower = 0.1; % PU transmission power in W
 Pfa = 0.05; % Target false alarm probability
 
@@ -42,8 +42,24 @@ A = A_mcs;
 
 % Calculate the lambda threshold value using the Incomplete Gamma function
 lambda = 2*gammaincinv(Pfa,N/2,'upper');
-P_or = sum(X > lambda,2) > 0; % SU predictions on channel occupancy (OR rule)
-P_and = sum(X > lambda,2) == size(X,2); % SU predictions on channel occupancy (AND rule)
+
+A_or = sum(X > lambda,2) > 0; % SU predictions on channel occupancy (OR rule)
+A_and = sum(X > lambda,2) == size(X,2); % SU predictions on channel occupancy (AND rule)
+
+detected_or = A & A_or;
+misdetected_or = logical(A - detected_or);
+falseAlarm_or = logical(A_or - detected_or);
+available_or = ~A & ~A_or;
+
+detected_and = A & A_and;
+misdetected_and = logical(A - detected_and);
+falseAlarm_and = logical(A_and - detected_and);
+available_and = ~A & ~A_and;
+
+Pd_post_or = sum(detected_or)/sum(A);
+Pd_post_and = sum(detected_and)/sum(A);
+Pfa_post_or = sum(falseAlarm_or)/(length(A)-sum(A));
+Pfa_post_and = sum(falseAlarm_and)/(length(A)-sum(A));
 
 %% GMM 
 
@@ -117,24 +133,28 @@ hold off
 
 % SU1 and SU2 predicted channel states (AND rule)
 figure
-plot(X(P_and==1,1),X(P_and==1,2),'r+'), hold on
-plot(X(P_and==0,1),X(P_and==0,2),'bo')
+plot(X(detected_and,1),X(detected_and,2),'r+'), hold on
+plot(X(falseAlarm_and,1),X(falseAlarm_and,2),'b+'), hold on
+plot(X(available_and,1),X(available_and,2),'bo'), hold on
+plot(X(misdetected_and,1),X(misdetected_and,2),'ro')
 axis(axisLimits)
 grid on
 title('Predicted Channel States (AND rule)')
-legend('Channel unavailable','Channel available','Location','NorthWest');
+legend('Channel unavailable','False alarm','Channel available','Misdetection','Location','NorthWest');
 xlabel 'Normalized energy level of SU 1'
 ylabel 'Normalized energy level of SU 2'
 hold off
 
 % SU1 and SU2 predicted channel states (OR rule)
 figure
-plot(X(P_or==1,1),X(P_or==1,2),'r+'), hold on
-plot(X(P_or==0,1),X(P_or==0,2),'bo')
+plot(X(detected_or,1),X(detected_or,2),'r+'), hold on
+plot(X(falseAlarm_or,1),X(falseAlarm_or,2),'b+'), hold on
+plot(X(available_or,1),X(available_or,2),'bo'), hold on
+plot(X(misdetected_or,1),X(misdetected_or,2),'ro')
 axis(axisLimits)
 grid on
 title('Predicted Channel States (OR rule)')
-legend('Channel unavailable','Channel available','Location','NorthWest');
+legend('Channel unavailable','False alarm','Channel available','Misdetection','Location','NorthWest');
 xlabel 'Normalized energy level of SU 1'
 ylabel 'Normalized energy level of SU 2'
 hold off
