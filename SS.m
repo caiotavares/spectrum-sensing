@@ -4,12 +4,13 @@ clear
 close all
 addpath('lib');
 
-realiz = 5e2;
+realiz = 1e3;
 T = 10e-6; % SU spectrum sensing period
 w = 5e6; % SU spectrum sensing bandwidth
 N = round(2*w*T); % Number of samples
-Pfa = 0.05; % Target false alarm probability
-NoisePSD_dBm = -163; % Noise PSD in dBm/Hz
+Pfa_target = 0.1; % Target false alarm probability
+NoisePSD_dBm = -162; % Noise PSD in dBm/Hz
+NoiseVariance = (10^(NoisePSD_dBm/10)*1e-3)*w;
 
 %% Distribute the SU and PU locations and active probability
 
@@ -23,37 +24,56 @@ myScenario = struct();
 myScenario.PU = [1.0 1.0]*1e3;
 myScenario.SU = [0.0 1.0 ; 2.0 1.0]*1e3;
 myScenario.Pr = 0.5;
-myScenario.NoisePSD = 10^(NoisePSD_dBm/10)*1e-3; % Noise PSD in W/Hz
+myScenario.NoisePower = NoiseVariance;
 myScenario.TXPower = 0.1; % PU transmission power in W
                
 %% Spectrum Sensing Procedure
 
-[X_mcs,A_mcs,PU,n,Z,SNR_dB] = SS_MCS(myScenario, T, w,realiz);
+[X_mcs,A_mcs,PU,n,Z,SNR] = SS_MCS(myScenario, T, w,realiz);
 % [X_art,A_art,muY,sigmaY] = SS_analytical(myScenario, txPower/T, T, w, meanNoisePSD_dBm, realiz);
 
 X = X_mcs;
 A = A_mcs;
 
+for i=1:size(SNR,1)
+   meanSNR(i) = mean(SNR(i,SNR(i,:)>0));
+end
+
+SNR_dB = 10*log10(meanSNR); 
+
 %% PU detection procedure
 
 % Calculate the lambda threshold value using the Incomplete Gamma function
-lambda = 2*gammaincinv(Pfa,N/2,'upper');
+lambda = 2*gammaincinv(Pfa_target,N/2,'upper');
+Pd_priori = gammainc(lambda./(2*(1+meanSNR)), N/2, 'upper');
 
+% SS Ind
+A_ind = X>lambda;
+detected_ind = A & A_ind;
+misdetected_ind = logical(A - detected_ind);
+falseAlarm_ind = logical(A_ind - detected_ind);
+available_ind = ~A & ~A_ind;
+
+% SS Coop OR 
 A_or = sum(X > lambda,2) > 0; % SU predictions on channel occupancy (OR rule)
-A_and = sum(X > lambda,2) == size(X,2); % SU predictions on channel occupancy (AND rule)
-
 detected_or = A & A_or;
 misdetected_or = logical(A - detected_or);
 falseAlarm_or = logical(A_or - detected_or);
 available_or = ~A & ~A_or;
 
+% SS Coop AND
+A_and = sum(X > lambda,2) == size(X,2); % SU predictions on channel occupancy (AND rule)
 detected_and = A & A_and;
 misdetected_and = logical(A - detected_and);
 falseAlarm_and = logical(A_and - detected_and);
 available_and = ~A & ~A_and;
 
+% Metrics
+Pd_post_ind = sum(detected_ind)/sum(A);
 Pd_post_or = sum(detected_or)/sum(A);
 Pd_post_and = sum(detected_and)/sum(A);
+
+Pfa_post_ind = sum(falseAlarm_ind)/(length(A)-sum(A));
 Pfa_post_or = sum(falseAlarm_or)/(length(A)-sum(A));
 Pfa_post_and = sum(falseAlarm_and)/(length(A)-sum(A));
 
@@ -108,24 +128,17 @@ axisLimits = round([m1-(3*d1) m1+(3*d1) m2-(3*d2) m2+(3*d2)],2);
 % legend('PU', 'SU')
 % axis([0 2 0 2])
 
-% Sensed power for 1 SU
-% figure
-% plot(X(A==1),X(A==1),'r+'), hold on
-% plot(X(A==0),X(A==0),'bo')
-% grid on
-% hold off
-
 % Actual channel states
-figure
-plot(X(A==1,1),X(A==1,2),'r+'), hold on
-plot(X(A==0,1),X(A==0,2),'bo')
-axis(axisLimits)
-grid on
-title('Actual Channel States')
-legend('Channel unavailable','Channel available','Location','NorthWest');
-xlabel 'Normalized energy level of SU 1'
-ylabel 'Normalized energy level of SU 2'
-hold off
+% figure
+% plot(X(A==1,1),X(A==1,2),'r+'), hold on
+% plot(X(A==0,1),X(A==0,2),'bo')
+% axis(axisLimits)
+% grid on
+% title('Actual Channel States')
+% legend('Channel unavailable','Channel available','Location','NorthWest');
+% xlabel 'Normalized energy level of SU 1'
+% ylabel 'Normalized energy level of SU 2'
+% hold off
 
 % SU1 and SU2 predicted channel states (AND rule)
 figure
