@@ -2,7 +2,7 @@ function [Y,A,PU,n,Z,SNR] = SS_MCS(scenario, T, w, realiz)
 
 M = size(scenario.PU,1); % Number of PUs
 N = size(scenario.SU,1); % Number of SUs
-txPower = scenario.TXPower*ones(1,M);
+txPower = scenario.TXPower*ones(M,1);
 noisePower = scenario.NoisePower*ones(N,1);
 a = 4; % Path-loss exponent
 samples = round(2*T*w); % Number of samples
@@ -41,7 +41,7 @@ for k=1:realiz
             Z(i,t,k) = PU(i,t,k) + n(i,t,k);
         end
         SNR(i,k) = mean(abs(PU(i,:,k)).^2)/noisePower(i);
-        Y(k,i) = sum(abs(Z(i,:,k)).^2)/(noisePower(i)); % Normalized by noise variance
+        Y(k,i) = sum(abs(Z(i,:,k)).^2)/(noisePower(i)*samples); % Normalized by noise variance
     end
 end
 

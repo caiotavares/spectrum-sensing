@@ -16,4 +16,4 @@ else
 end
 
 % Apply GM model to cluster the data
-Y = cluster(GM,X);
+Y = cluster(GM,X)-1;
