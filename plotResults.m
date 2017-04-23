@@ -28,13 +28,14 @@ plot(scenario.PU(:,1),scenario.PU(:,2),'k^','MarkerFaceColor','k','MarkerSize',8
 plot(scenario.SU(:,1),scenario.SU(:,2),'ro','MarkerFaceColor','r','MarkerSize',8);
 grid on
 legend('PU', 'SU')
+hold off
 
 % Actual channel states
 figure
 plot3(X(A==1,1),X(A==1,2),X(A==1,3),'r+'), hold on
 plot3(X(A==0,1),X(A==0,2),X(A==0,3),'bo')
 grid on
-title('Actual Channel States')
+title('Channel States')
 legend('Channel unavailable','Channel available','Location','NorthWest');
 xlabel 'Normalized energy level of SU 1'
 ylabel 'Normalized energy level of SU 2'
@@ -73,12 +74,20 @@ hold off
 
 % ROC SS Coop
 figure
-plot(Pfa_post_bayes,Pd_post_bayes,'b'), hold on
-plot(Pfa_post_and,Pd_post_and,'k')
-plot(Pfa_post_or,Pd_post_or,'r')
+len = length(Pfa_post_bayes);
+mSize = 6;
+mPercent = 20;
+plot(Pfa_post_bayes,Pd_post_bayes,'b-*','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize);
+hold on;
+plot(Pfa_post_gmm,Pd_post_gmm,'m-+','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+plot(Pfa_post_and,Pd_post_and,'k-o','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+plot(Pfa_post_or,Pd_post_or,'r-v','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+for i=1:size(scenario.SU,1)
+    plot(Pfa_post_ind(:,i),Pd_post_ind(:,i),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+    leg(i,:) = ['SU ' num2str(i)];
+end
 grid on
-legend('Bayes','AND','OR')
-xlabel 'P_{fa}'
-ylabel 'P_d'
-title 'ROC'
+legend(['Bayes','GMM','AND','OR',string(leg)']);
+xlabel 'False Alarm Probability'
+ylabel 'Detection Probability'
 hold off
