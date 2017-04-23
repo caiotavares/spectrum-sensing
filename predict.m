@@ -19,6 +19,7 @@ Pfa_post_gmm = zeros(length(Pfa_target),1);
 % Naive Bayes 
 e = 1e-3;
 P_X0_H1 = chi2cdf((X+e)*N./(1+meanSNR)',N) - chi2cdf((X-e)*N./(1+meanSNR)',N);
+% P_X0_H1_gamma = gamcdf(N*(X(:,1)+e),N/2,2*(1+meanSNR(1)))  - gamcdf(N*(X(:,1)-e),N/2,2*(1+meanSNR(1)));
 P_X0_H0 = chi2cdf((X+e)*N,N) - chi2cdf((X-e)*N,N);
 P_H1 = scenario.Pr;
 P_H0 = 1-P_H1;
@@ -66,7 +67,7 @@ for i=1:length(Pfa_target)
     falseAlarm_and = logical(A_and - detected_and);
     available_and = ~A & ~A_and;
     
-    % SS Coop Naive Bayes
+    % SS Coop Bayesian
     A_bayes = (sum(P_H1_X0.*w,2)/sum(w))>=(1-alpha);
     detected_bayes = A & A_bayes;
     misdetected_bayes = logical(A - detected_bayes);

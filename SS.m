@@ -8,7 +8,7 @@ realiz = 1e4;
 T = 10e-6; % SU spectrum sensing period
 w = 5e6; % SU spectrum sensing bandwidth
 N = round(2*w*T); % Number of samples
-NoisePSD_dBm = -151;%-147; % Noise PSD in dBm/Hz
+NoisePSD_dBm = -150;%-147; % Noise PSD in dBm/Hz
 NoiseVariance = (10^(NoisePSD_dBm/10)*1e-3)*w;
 
 %% Distribute the SU and PU locations and active probability

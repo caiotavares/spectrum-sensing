@@ -87,7 +87,7 @@ for i=1:size(scenario.SU,1)
     leg(i,:) = ['SU ' num2str(i)];
 end
 grid on
-legend(['Bayes','GMM','AND','OR',string(leg)']);
+legend(['Bayesian Estimator','GM Estimator','AND','OR',string(leg)']);
 xlabel 'False Alarm Probability'
 ylabel 'Detection Probability'
 hold off
