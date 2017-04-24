@@ -35,11 +35,11 @@ figure
 plot3(X_test(A_test==1,1),X_test(A_test==1,2),X_test(A_test==1,3),'r+'), hold on
 plot3(X_test(A_test==0,1),X_test(A_test==0,2),X_test(A_test==0,3),'bo')
 grid on
-title('Channel States')
+% title('Channel States')
 legend('Channel unavailable','Channel available','Location','NorthWest');
-xlabel 'Normalized energy level of SU 1'
-ylabel 'Normalized energy level of SU 2'
-zlabel 'Normalized energy level of SU 3'
+xlabel 'Normalized energy level of SU_1'
+ylabel 'Normalized energy level of SU_2'
+zlabel 'Normalized energy level of SU_3'
 hold off
 
 % SU1 and SU2 predicted channel states (AND rule)
@@ -82,12 +82,20 @@ hold on;
 plot(Pfa_post_gmm,Pd_post_gmm,'m-+','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
 plot(Pfa_post_and,Pd_post_and,'k-o','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
 plot(Pfa_post_or,Pd_post_or,'r-v','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-for i=1:size(scenario.SU,1)
-    plot(Pfa_post_ind(:,i),Pd_post_ind(:,i),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-    leg(i,:) = ['SU ' num2str(i)];
+if (size(scenario.SU,1)==3)
+    plot(Pfa_post_ind(:,1),Pd_post_ind(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+    plot(Pfa_post_ind(:,2),Pd_post_ind(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+    plot(Pfa_post_ind(:,3),Pd_post_ind(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+    leg = ['SU 1'; 'SU 2'; 'SU 3'];
+else
+    plot(Pfa_post_ind(:,1),Pd_post_ind(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+    plot(Pfa_post_ind(:,2),Pd_post_ind(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+    plot(Pfa_post_ind(:,3),Pd_post_ind(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+    plot(Pfa_post_ind(:,4),Pd_post_ind(:,4),'--p','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+    leg = ['SU 1'; 'SU 2'; 'SU 3'; 'SU 4'];
 end
 grid on
-legend(['Bayes','GMM','AND','OR',string(leg)']);
+legend(['WB Estimator','GM Estimator','AND','OR',string(leg)']);
 xlabel 'False Alarm Probability'
 ylabel 'Detection Probability'
 hold off
