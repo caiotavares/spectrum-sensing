@@ -28,8 +28,6 @@ testIndexes = setdiff(1:size(X,1),trainingIndexes)';
 X_training = X(trainingIndexes,:);
 % X_test = X(testIndexes,:);
 % A_test = A(testIndexes);
-X_test = X;
-A_test = A;
 w = meanSNR';
  
 %% ML
@@ -54,16 +52,16 @@ startObj = struct('mu',mu,'Sigma',Sigma,'ComponentProportion',mixing);
 options = statset('Display','final');
 % GM = fitgmdist(X_training,2,'Start',startObj,'Options',options,'CovarianceType','diagonal');
 GM = gmdistribution(mu,Sigma,mixing);
-[~,~,P_gmm] = cluster(GM,X_test);
+[~,~,P_gmm] = cluster(GM,X);
 
 %% Metrics
 
 for i=1:length(Pfa_target)
     
-    alpha = Pfa_target(i); % Regulates the Bayes Pfa
+    alpha = 1-Pfa_target(i); % Regulates the Bayes Pfa
     
     % Calculate the lambda threshold value using the Incomplete Gamma function
-    lambda = 2*gammaincinv(alpha,N/2,'upper')/N;
+    lambda = 2*gammaincinv(Pfa_target(i),N/2,'upper')/N;
     
     % SS Ind
     A_ind = X>=lambda;
@@ -80,25 +78,25 @@ for i=1:length(Pfa_target)
     available_or = ~A & ~A_or;
     
     % SS Coop AND
-    A_and = sum(X >= lambda,2) == size(X_test,2); % SU predictions on channel occupancy (AND rule)
+    A_and = sum(X >= lambda,2) == size(X,2); % SU predictions on channel occupancy (AND rule)
     detected_and = A & A_and;
     misdetected_and = logical(A - detected_and);
     falseAlarm_and = logical(A_and - detected_and);
     available_and = ~A & ~A_and;
     
     % SS Coop Bayesian
-    A_bayes = (sum(P_H1_X0.*w,2)/sum(w))>=(1-alpha);
+    A_bayes = (sum(P_H1_X0.*w,2)/sum(w))>=alpha;
     detected_bayes = A & A_bayes;
     misdetected_bayes = logical(A - detected_bayes);
     falseAlarm_bayes = logical(A_bayes - detected_bayes);
     available_bayes = ~A & ~A_bayes;
     
     % SS Coop GMM
-    A_gmm = P_gmm(:,2)>=(1-alpha);
-    detected_gmm = A_test & A_gmm;
-    misdetected_gmm = logical(A_test - detected_gmm);
+    A_gmm = P_gmm(:,2)>=alpha;
+    detected_gmm = A & A_gmm;
+    misdetected_gmm = logical(A - detected_gmm);
     falseAlarm_gmm = logical(A_gmm - detected_gmm);
-    available_gmm = ~A_test & ~A_gmm;
+    available_gmm = ~A & ~A_gmm;
     
     % Pd and Pfa to build the ROC curve
     Pd_priori_ind(i,:) = gammainc(N*lambda./(2*(1+meanSNR)), N/2, 'upper');
@@ -106,12 +104,12 @@ for i=1:length(Pfa_target)
     Pd_post_or(i) = sum(detected_or)/sum(A);
     Pd_post_and(i) = sum(detected_and)/sum(A);
     Pd_post_bayes(i) = sum(detected_bayes)/sum(A);
-    Pd_post_gmm(i) = sum(detected_gmm)/sum(A_test);
+    Pd_post_gmm(i) = sum(detected_gmm)/sum(A);
     
     Pfa_post_ind(i,:) = sum(falseAlarm_ind)/(length(A)-sum(A));
     Pfa_post_or(i) = sum(falseAlarm_or)/(length(A)-sum(A));
     Pfa_post_and(i) = sum(falseAlarm_and)/(length(A)-sum(A));
     Pfa_post_bayes(i) = sum(falseAlarm_bayes)/(length(A)-sum(A));
-    Pfa_post_gmm(i) = sum(falseAlarm_gmm)/(length(A_test)-sum(A_test));
+    Pfa_post_gmm(i) = sum(falseAlarm_gmm)/(length(A)-sum(A));
     
 end

@@ -32,8 +32,8 @@ hold off
 
 % Actual channel states
 figure
-plot3(X_test(A_test==1,1),X_test(A_test==1,2),X_test(A_test==1,3),'r+'), hold on
-plot3(X_test(A_test==0,1),X_test(A_test==0,2),X_test(A_test==0,3),'bo')
+plot3(X(A==1,1),X(A==1,2),X(A==1,3),'r+'), hold on
+plot3(X(A==0,1),X(A==0,2),X(A==0,3),'bo')
 grid on
 % title('Channel States')
 legend('Channel unavailable','Channel available','Location','NorthWest');
