@@ -23,7 +23,7 @@ for i=1:M
 end
 
 if (sum(S)>0)
-    X(S'==1,:) = normrnd(0,sqrt(txPower(S'==1)),sum(S),samples);
+    X(S'==1,:) = normrnd(zeros(sum(S),samples),ones(sum(S),samples).*sqrt(txPower(S'==1)));
 end
 
 end
