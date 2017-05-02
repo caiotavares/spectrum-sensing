@@ -13,34 +13,19 @@ Pfa_post_and = zeros(length(Pfa_target),1);
 Pfa_post_bayes = zeros(length(Pfa_target),1);
 Pfa_post_gmm = zeros(length(Pfa_target),1);
 
-% Training Methodology
+%% Analytical Estimators
 
-trainingPercent = 0.7;
-truePositives = find(A==1);
-trueNegatives = find(A==0);
-
-positiveTrainingIndexes = truePositives(randperm(length(truePositives),round(length(truePositives)*trainingPercent)));
-negativeTrainingIndexes = trueNegatives(randperm(length(trueNegatives),round(length(trueNegatives)*trainingPercent)));
-
-trainingIndexes = sort([positiveTrainingIndexes;negativeTrainingIndexes]);
-testIndexes = setdiff(1:size(X,1),trainingIndexes)';
-
-X_training = X(trainingIndexes,:);
-% X_test = X(testIndexes,:);
-% A_test = A(testIndexes);
-w = meanSNR';
- 
-%% ML
-
-% Naive Bayes 
+% Weighted Bayes 
 e = 1e-3;
-P_X0_H1 = chi2cdf((X+e)*N./(1+meanSNR)',N) - chi2cdf((X-e)*N./(1+meanSNR)',N);
-% P_X0_H1_gamma = gamcdf(N*(X(:,1)+e),N/2,2*(1+meanSNR(1)))  - gamcdf(N*(X(:,1)-e),N/2,2*(1+meanSNR(1)));
+shape = N/2;
+scale = 2*ones(size(X,1),1).*(1+meanSNR)';
+P_X0_H1 = gamcdf(N*(X+e),shape,scale) - gamcdf(N*(X-e),shape,scale);
 P_X0_H0 = chi2cdf((X+e)*N,N) - chi2cdf((X-e)*N,N);
 P_H1 = scenario.Pr;
 P_H0 = 1-P_H1;
 P_H1_X0 = P_X0_H1*P_H1./(P_X0_H0*P_H0 + P_X0_H1*P_H1);
 P_H0_X0 = 1-P_H1_X0;
+w = meanSNR';
 
 % GMM
 mu = [ones(1,length(meanSNR)); ones(1,length(meanSNR)).*(1+meanSNR)'];
@@ -50,7 +35,6 @@ Sigma(:,:,2) = sigma(2,:);
 mixing = [1-scenario.Pr scenario.Pr];
 startObj = struct('mu',mu,'Sigma',Sigma,'ComponentProportion',mixing);
 options = statset('Display','final');
-% GM = fitgmdist(X_training,2,'Start',startObj,'Options',options,'CovarianceType','diagonal');
 GM = gmdistribution(mu,Sigma,mixing);
 [~,~,P_gmm] = cluster(GM,X);
 
@@ -58,9 +42,8 @@ GM = gmdistribution(mu,Sigma,mixing);
 
 for i=1:length(Pfa_target)
     
-    alpha = 1-Pfa_target(i); % Regulates the Bayes Pfa
-    
-    % Calculate the lambda threshold value using the Incomplete Gamma function
+    alpha = 1-Pfa_target(i); % Regulates the WB Pfa
+    beta = alpha; % Regulates the GMM Pfa
     lambda = 2*gammaincinv(Pfa_target(i),N/2,'upper')/N;
     
     % SS Ind
@@ -92,7 +75,7 @@ for i=1:length(Pfa_target)
     available_bayes = ~A & ~A_bayes;
     
     % SS Coop GMM
-    A_gmm = P_gmm(:,2)>=alpha;
+    A_gmm = P_gmm(:,2)>=beta;
     detected_gmm = A & A_gmm;
     misdetected_gmm = logical(A - detected_gmm);
     falseAlarm_gmm = logical(A_gmm - detected_gmm);
@@ -105,7 +88,6 @@ for i=1:length(Pfa_target)
     Pd_post_and(i) = sum(detected_and)/sum(A);
     Pd_post_bayes(i) = sum(detected_bayes)/sum(A);
     Pd_post_gmm(i) = sum(detected_gmm)/sum(A);
-    
     Pfa_post_ind(i,:) = sum(falseAlarm_ind)/(length(A)-sum(A));
     Pfa_post_or(i) = sum(falseAlarm_or)/(length(A)-sum(A));
     Pfa_post_and(i) = sum(falseAlarm_and)/(length(A)-sum(A));
