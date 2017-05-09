@@ -38,4 +38,8 @@ meanSNRdB = 10*log10(meanSNR);
 %% Call scripts to predict and plot results
 
 predict
-plotResults
+% plotResults
+
+exportX = [X A];
+save('R/ss.mat','exportX','-v6');
+clear exportX;

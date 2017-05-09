@@ -1,2 +1,4 @@
 *.asv
 *.orig
+*.mat
+*.Rhistory
