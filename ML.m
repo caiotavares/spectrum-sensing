@@ -1,8 +1,5 @@
 %% Training Methodology (not operational)
 
-system('Rscript R/ML.r')
-load('MLP')
-
 % trainingPercent = 0.7;
 % truePositives = find(A==1);
 % trueNegatives = find(A==0);
@@ -23,4 +20,6 @@ load('MLP')
 % X_training.Properties.VariableNames = names;
 % X_test.Properties.VariableNames = names;
 
+% startObj = struct('mu',mu,'Sigma',Sigma,'ComponentProportion',mixing);
+% options = statset('Display','final');
 % GM = fitgmdist(X_training,2,'Start',startObj,'Options',options,'CovarianceType','diagonal');

@@ -1,11 +1,12 @@
-function [Y,A,PU,n,Z,SNR] = SS_MCS(scenario, T, w, realiz)
+function [Y,A,PU,n,Z,SNR] = SS_MCS(scenario)
 
 M = size(scenario.PU,1); % Number of PUs
 N = size(scenario.SU,1); % Number of SUs
 txPower = scenario.TXPower*ones(M,1);
 noisePower = scenario.NoisePower*ones(N,1);
 a = 4; % Path-loss exponent
-samples = round(2*T*w); % Number of samples
+samples = round(2*scenario.T*scenario.w); % Number of samples
+realiz = scenario.realiz;
 
 %% Compute the Euclidean distance for each PU-SU pair
 d = zeros(M,N);

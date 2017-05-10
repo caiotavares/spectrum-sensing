@@ -1,4 +1,14 @@
-%% Plot results
+function plotResults(X,A,Pd,Pfa,varargin)
+
+close all
+
+default.suppressIndividual = false;
+
+if (nargin >4)
+    options = varargin{1};
+else
+    options = default;
+end
 
 % GMM Predicted Channel Status
 % figure;
@@ -23,12 +33,12 @@
 % legend('PUs','Noise')
 
 % PU and SU location
-figure
-plot(scenario.PU(:,1),scenario.PU(:,2),'k^','MarkerFaceColor','k','MarkerSize',8), hold on
-plot(scenario.SU(:,1),scenario.SU(:,2),'ro','MarkerFaceColor','r','MarkerSize',8);
-grid on
-legend('PU', 'SU')
-hold off
+% figure
+% plot(scenario.PU(:,1),scenario.PU(:,2),'k^','MarkerFaceColor','k','MarkerSize',8), hold on
+% plot(scenario.SU(:,1),scenario.SU(:,2),'ro','MarkerFaceColor','r','MarkerSize',8);
+% grid on
+% legend('PU', 'SU')
+% hold off
 
 % Actual channel states
 figure
@@ -74,28 +84,33 @@ hold off
 
 % ROC SS Coop
 figure
-len = length(Pfa_post_bayes);
+len = length(Pfa.post.bayes);
 mSize = 6;
 mPercent = 20;
-plot(Pfa_post_bayes,Pd_post_bayes,'b-*','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize);
+plot(Pfa.post.bayes,Pd.post.bayes,'b-*','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize);
 hold on;
-plot(Pfa_post_gmm,Pd_post_gmm,'m-+','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-plot(Pfa_post_and,Pd_post_and,'k-o','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-plot(Pfa_post_or,Pd_post_or,'r-v','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-if (size(scenario.SU,1)==3)
-    plot(Pfa_post_ind(:,1),Pd_post_ind(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-    plot(Pfa_post_ind(:,2),Pd_post_ind(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-    plot(Pfa_post_ind(:,3),Pd_post_ind(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-    leg = ['SU 1'; 'SU 2'; 'SU 3'];
+plot(Pfa.post.gmm,Pd.post.gmm,'m-+','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+plot(Pfa.post.and,Pd.post.and,'k-o','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+plot(Pfa.post.or,Pd.post.or,'r-v','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+plot(Pfa.post.mlp,Pd.post.mlp,'g-v','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+if (options.suppressIndividual == false)
+    if (size(Pfa.post.ind,2)==3)
+        plot(Pfa.post.ind(:,1),Pd.post.ind(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        plot(Pfa.post.ind(:,2),Pd.post.ind(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        plot(Pfa.post.ind(:,3),Pd.post.ind(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        leg = ['SU 1'; 'SU 2'; 'SU 3'];
+    else
+        plot(Pfa.post.ind(:,1),Pd.post.ind(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        plot(Pfa.post.ind(:,2),Pd.post.ind(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        plot(Pfa.post.ind(:,3),Pd.post.ind(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        plot(Pfa.post.ind(:,4),Pd.post.ind(:,4),'--p','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        leg = ['SU 1'; 'SU 2'; 'SU 3'; 'SU 4'];
+    end
+    legend(['WB Estimator','GM Estimator','AND','OR','MLP',string(leg)']);
 else
-    plot(Pfa_post_ind(:,1),Pd_post_ind(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-    plot(Pfa_post_ind(:,2),Pd_post_ind(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-    plot(Pfa_post_ind(:,3),Pd_post_ind(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-    plot(Pfa_post_ind(:,4),Pd_post_ind(:,4),'--p','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-    leg = ['SU 1'; 'SU 2'; 'SU 3'; 'SU 4'];
+    legend('WB Estimator','GM Estimator','AND','OR','MLP');
 end
 grid on
-legend(['WB Estimator','GM Estimator','AND','OR',string(leg)']);
 xlabel 'False Alarm Probability'
 ylabel 'Detection Probability'
 hold off
