@@ -16,7 +16,7 @@ scenario2.SU = [0.5 1.0 ; 2.0 1.0; 1.0 0.5; 0.5 0.5]*1e3;
 scenario2.Pr = 0.5;
 scenario2.TXPower = 0.1; % PU transmission power in W
 
-scenario = scenario2;
+scenario = scenario1;
 scenario.realiz = 1e4; % MCS realization
 scenario.T = 5e-6; % SU spectrum sensing period
 scenario.w = 5e6; % SU spectrum sensing bandwidth
@@ -34,7 +34,7 @@ meanSNRdB = 10*log10(meanSNR);
 % Export SS file to R ML script
 save('data/ss.mat','X','A','-v6');
 
-models = buildModels(X, size(scenario.SU,1), meanSNR, scenario.Pr);
+models = buildModels(X, A, size(scenario.SU,1), meanSNR, scenario.Pr);
 [Pd, Pfa] = predict(X, A, size(scenario.SU,1), models);
 options.suppressIndividual = true;
 plotResults(X,A,Pd,Pfa,options);

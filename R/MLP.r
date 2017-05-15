@@ -1,4 +1,5 @@
 library(R.matlab)
+library(RSNNS)
 library(caret)
 
 accuracy <- function(confusion)
@@ -16,8 +17,11 @@ X.train.len <- round(training*nrow(X))
 X.train <-  X[1:X.train.len,]
 X.test <- X[(X.train.len+1):nrow(X),]
 
-MLP <- caret::train(X.train[,-ncol(X.train)], X.train$Status, 
-                    trControl = trainControl(method = "cv", number = 10), method = "mlp", tuneLength = 1)
-prediction.MLP <- predict(MLP$finalModel, X.test[,-ncol(X.test)])
+MLP <- RSNNS::mlp(X.train[, -ncol(X.train)], RSNNS::decodeClassLabels(X.train$Status), size = 3)
+P_mlp <- predict(MLP, X.test[,-ncol(X.test)])
+R.matlab::writeMat(P = P_mlp, A = X.test$Status==1, con = "../data/MLP.mat")
 
-R.matlab::writeMat(P_mlp = prediction.MLP, A_mlp = X.test$Status==1, con = "../data/MLP.mat")
+# MLP <- caret::train(X.train[,-ncol(X.train)], X.train$Status, 
+#                     trControl = trainControl(method = "cv", number = 10), method = "mlp", tuneLength = 1)
+# prediction.MLP <- predict(MLP$finalModel, X.test[,-ncol(X.test)])
+# R.matlab::writeMat(P_mlp = prediction.MLP, A_mlp = X.test$Status==1, con = "../data/MLP.mat")
