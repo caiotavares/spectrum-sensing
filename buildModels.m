@@ -1,4 +1,4 @@
-function models = buildModels(X, N, meanSNR, Pr)
+function models = buildModels(X, A, N, meanSNR, Pr)
 
 % Weighted Bayes
 e = 1e-3;
@@ -11,18 +11,22 @@ P_H0 = 1-P_H1;
 P_H1_X0 = P_X0_H1*P_H1./(P_X0_H0*P_H0 + P_X0_H1*P_H1);
 P_H0_X1 = 1-P_H1_X0;
 w = meanSNR';
-models.WB.P_wb = [sum(P_H0_X1.*w,2)/sum(w) sum(P_H1_X0.*w,2)/sum(w)];
+models.WB.P = [sum(P_H0_X1.*w,2)/sum(w) sum(P_H1_X0.*w,2)/sum(w)];
 
-% Gaussian Mixture Model
+% Analytical Gaussian Mixture Model
 mu = [ones(1,length(meanSNR)); ones(1,length(meanSNR)).*(1+meanSNR)'];
 sigma = [ones(1,length(meanSNR))*(2*N/N^2) ; ones(1,length(meanSNR)).*(2*N*((1+meanSNR)'.^2)/N^2)];
 Sigma(:,:,1) = sigma(1,:);
 Sigma(:,:,2) = sigma(2,:);
 mixing = [1-Pr Pr];
 GM = gmdistribution(mu,Sigma,mixing);
-[~,~,models.GMM.P_gmm] = cluster(GM,X);
+[~,~,models.GMM.analytical.P] = cluster(GM,X);
+models.GMM.analytical.model = GM;
+
+% Learned Gaussian Mixture Model
+models.GMM.learned = ML(X,A,0.7);
 
 % Multilayer Perceptron
 system('Rscript --vanilla R/ML.r')
-models.MLP = load('MLP'); % Loads P_mlp and A_mlp
-models.MLP.A_mlp = logical(models.MLP.A_mlp);
+models.MLP = load('MLP'); % Loads P and A_mlp
+models.MLP.A = logical(models.MLP.A);
