@@ -1,4 +1,4 @@
-function GMM = ML(X, A, trainingPercent)
+function GMM = GMM(X, A, trainingPercent)
 
 % truePositives = find(A==1);
 % trueNegatives = find(A==0);
