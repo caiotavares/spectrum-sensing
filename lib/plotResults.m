@@ -6,6 +6,7 @@ default.suppressIndividual = false;
 
 if (nargin >4)
     options = varargin{1};
+    models = varargin{2};
 else
     options = default;
 end
@@ -51,6 +52,44 @@ xlabel 'Normalized energy level of SU_1'
 ylabel 'Normalized energy level of SU_2'
 zlabel 'Normalized energy level of SU_3'
 hold off
+
+% Analytical GMM contours for SU1 and SU3
+figure
+plot(X(A==1,1),X(A==1,3),'r+'), hold on
+plot(X(A==0,1),X(A==0,3),'bo')
+GMM = models.GMM.analytical.model;
+cluster1 = gmdistribution(GMM.mu(1,[1 3]), GMM.Sigma(1,[1 3],1), GMM.ComponentProportion(1));
+cluster2 = gmdistribution(GMM.mu(2,[1 3]), GMM.Sigma(1,[1 3],2), GMM.ComponentProportion(2));
+f1 = fcontour(@(x,z)pdf(cluster1,[x z]));
+f2 = fcontour(@(x,z)pdf(cluster2,[x z]));
+% axis([min(X(:,1)) max(X(:,1)) min(X(:,3)) max(X(:,3))]);
+axis([0 8 0 8]);
+xlabel('SU 1')
+ylabel('SU 3')
+xline = linspace(GMM.mu(1,1),GMM.mu(2,1),10);
+yline = linspace(GMM.mu(1,3),GMM.mu(2,3),10);
+line(xline,yline)
+hold off
+grid on
+
+% Learned GMM contours for SU1 and SU3
+figure
+plot(X(A==1,1),X(A==1,3),'r+'), hold on
+plot(X(A==0,1),X(A==0,3),'bo')
+GMM = models.GMM.learned.model;
+cluster1 = gmdistribution(GMM.mu(1,[1 3]), GMM.Sigma([1 3],[1 3],1), GMM.ComponentProportion(1));
+cluster2 = gmdistribution(GMM.mu(2,[1 3]), GMM.Sigma([1 3],[1 3],2), GMM.ComponentProportion(2));
+f1 = fcontour(@(x,z)pdf(cluster1,[x z]));
+f2 = fcontour(@(x,z)pdf(cluster2,[x z]));
+% axis([min(X(:,1)) max(X(:,1)) min(X(:,3)) max(X(:,3))]);
+axis([0 8 0 8]);
+xlabel('SU 1')
+ylabel('SU 3')
+xline = linspace(GMM.mu(1,1),GMM.mu(2,1),10);
+yline = linspace(GMM.mu(1,3),GMM.mu(2,3),10);
+line(xline,yline)
+hold off
+grid on
 
 % SU1 and SU2 predicted channel states (AND rule)
 % figure

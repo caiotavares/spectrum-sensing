@@ -37,5 +37,5 @@ save('data/ss.mat','X','A','-v6');
 models = buildModels(X, A, size(scenario.SU,1), meanSNR, scenario.Pr);
 [Pd, Pfa] = predict(X, A, size(scenario.SU,1), models);
 options.suppressIndividual = true;
-plotResults(X,A,Pd,Pfa,options);
+plotResults(X,A,Pd,Pfa,options,models);
 clear options

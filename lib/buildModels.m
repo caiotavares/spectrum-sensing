@@ -24,7 +24,7 @@ GM = gmdistribution(mu,Sigma,mixing);
 models.GMM.analytical.model = GM;
 
 % Learned Gaussian Mixture Model
-models.GMM.learned = ML(X,A,0.7);
+models.GMM.learned = GMM(X,A,0.7);
 
 % Multilayer Perceptron
 system('Rscript --vanilla R/ML.r')

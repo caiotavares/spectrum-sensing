@@ -12,7 +12,7 @@ testIndexes = setdiff(1:size(X,1),trainingIndexes)';
 X_test = X(testIndexes,:);
 
 options = statset('Display','final');
-model = fitgmdist(X_training,2,'Options',options,'CovarianceType','diagonal');
+model = fitgmdist(X_training,2,'Options',options);
 [~,~,P] = cluster(model,X_test);
 [~,index] = sort(mean(model.mu,2));
 GMM.P = P;
