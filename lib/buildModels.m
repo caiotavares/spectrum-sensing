@@ -26,7 +26,10 @@ models.GMM.analytical.model = GM;
 % Learned Gaussian Mixture Model
 models.GMM.learned = GMM(X,A,0.7);
 
+% K-Means Clustering
+models.KMeans = KMeans();
+
 % Multilayer Perceptron
-system('Rscript --vanilla R/ML.r')
+system('Rscript --vanilla lib/R/MLP.r 0.7')
 models.MLP = load('MLP'); % Loads P and A_mlp
 models.MLP.A = logical(models.MLP.A);
