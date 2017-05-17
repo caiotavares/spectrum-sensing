@@ -66,6 +66,7 @@ f2 = fcontour(@(x,z)pdf(cluster2,[x z]));
 axis([0 8 0 8]);
 xlabel('SU 1')
 ylabel('SU 3')
+title('Analytical GMM')
 xline = linspace(GMM.mu(1,1),GMM.mu(2,1),10);
 yline = linspace(GMM.mu(1,3),GMM.mu(2,3),10);
 line(xline,yline)
@@ -85,6 +86,7 @@ f2 = fcontour(@(x,z)pdf(cluster2,[x z]));
 axis([0 8 0 8]);
 xlabel('SU 1')
 ylabel('SU 3')
+title('Learned GMM')
 xline = linspace(GMM.mu(1,1),GMM.mu(2,1),10);
 yline = linspace(GMM.mu(1,3),GMM.mu(2,3),10);
 line(xline,yline)
