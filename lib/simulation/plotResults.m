@@ -128,12 +128,13 @@ figure
 len = length(Pfa.post.bayes);
 mSize = 6;
 mPercent = 20;
-plot(Pfa.post.bayes,Pd.post.bayes,'b-*','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize), hold on
+plot(Pfa.post.and,Pd.post.and,'k-o','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize), hold on
+plot(Pfa.post.or,Pd.post.or,'r-v','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+plot(Pfa.post.bayes,Pd.post.bayes,'b-*','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
 plot(Pfa.post.gmm,Pd.post.gmm,'m-+','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
 plot(Pfa.post.lgmm,Pd.post.lgmm,'m--','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-plot(Pfa.post.and,Pd.post.and,'k-o','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-plot(Pfa.post.or,Pd.post.or,'r-v','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
 plot(Pfa.post.mlp,Pd.post.mlp,'g-v','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+plot(Pfa.post.kmeans,Pd.post.kmeans,'g--','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
 if (options.suppressIndividual == false)
     if (size(Pfa.post.ind,2)==3)
         plot(Pfa.post.ind(:,1),Pd.post.ind(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
@@ -147,9 +148,9 @@ if (options.suppressIndividual == false)
         plot(Pfa.post.ind(:,4),Pd.post.ind(:,4),'--p','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
         leg = ['SU 1'; 'SU 2'; 'SU 3'; 'SU 4'];
     end
-    legend(['WB Estimator','Analytical GMM','Learned GMM','AND','OR','MLP',string(leg)']);
+    legend(['AND','OR','Weighted Bayesian','Analytical GMM','Learned GMM','Multilayer Perceptron','K-Means',string(leg)']);
 else
-    legend('WB Estimator','Analytical GMM','Learned GMM','AND','OR','MLP');
+    legend('AND','OR','Weighted Bayesian','Analytical GMM','Learned GMM','Multilayer Perceptron','K-Means');
 end
 grid on
 xlabel 'False Alarm Probability'

@@ -1,7 +1,7 @@
 %% Setup
 
 clear
-addpath('lib');
+addpath(genpath('lib'));
 addpath('data');
 
 % Scenario 1
@@ -17,7 +17,7 @@ scenario2.Pr = 0.5;
 scenario2.TXPower = 0.1; % PU transmission power in W
 
 scenario = scenario1;
-scenario.realiz = 1e4; % MCS realization
+scenario.realiz = 5e4; % MCS realization
 scenario.T = 5e-6; % SU spectrum sensing period
 scenario.w = 5e6; % SU spectrum sensing bandwidth
 scenario.NoisePSD_dBm = -152;%-147; % Noise PSD in dBm/Hz
@@ -31,7 +31,7 @@ meanSNRdB = 10*log10(meanSNR);
 
 %% Build models, predict the channel status and plot results
 
-% Export SS file to R ML script
+% Export SS file to R scripts
 save('data/ss.mat','X','A','-v6');
 
 models = buildModels(X, A, size(scenario.SU,1), meanSNR, scenario.Pr);

@@ -12,6 +12,7 @@ Pd.post.bayes = zeros(length(Pfa_target),1);
 Pd.post.gmm = zeros(length(Pfa_target),1);
 Pd.post.lgmm = zeros(length(Pfa_target),1);
 Pd.post.mlp = zeros(length(Pfa_target),1);
+Pd.post.kmeans = zeros(length(Pfa_target),1);
 
 Pfa.post.ind = zeros(length(Pfa_target),N);
 Pfa.post.or = zeros(length(Pfa_target),1);
@@ -20,15 +21,19 @@ Pfa.post.bayes = zeros(length(Pfa_target),1);
 Pfa.post.gmm = zeros(length(Pfa_target),1);
 Pfa.post.lgmm = zeros(length(Pfa_target),1);
 Pfa.post.mlp = zeros(length(Pfa_target),1);
+Pfa.post.kmeans = zeros(length(Pfa_target),1);
 
 %% Analytical Estimators
 
 P_gmm = models.GMM.analytical.P;
 P_lgmm = models.GMM.learned.P;
-A_lgmm = models.GMM.learned.A;
 P_wb = models.WB.P;
 P_mlp = models.MLP.P;
+P_kmeans = models.KMeans.P;
+
+A_lgmm = models.GMM.learned.A;
 A_mlp = models.MLP.A;
+A_kmeans = models.KMeans.A;
 
 %% Metrics
 
@@ -76,6 +81,11 @@ for i=1:length(Pfa_target)
     detected_mlp = A_mlp & status_mlp;
     falseAlarm_mlp = logical(status_mlp - detected_mlp);
     
+    % SS Coop K-Means
+    status_kmeans = P_kmeans(:,models.KMeans.positiveClass)>=alpha;
+    detected_kmeans = A_kmeans & status_kmeans;
+    falseAlarm_kmeans = logical(status_kmeans - detected_kmeans);
+    
     % Pd and Pfa to build the ROC curve
     Pd.post.ind(i,:) = sum(detected_ind)/sum(A);
     Pd.post.or(i) = sum(detected_or)/sum(A);
@@ -84,6 +94,7 @@ for i=1:length(Pfa_target)
     Pd.post.gmm(i) = sum(detected_gmm)/sum(A);
     Pd.post.lgmm(i) = sum(detected_lgmm)/sum(A_lgmm);
     Pd.post.mlp(i) = sum(detected_mlp)/sum(A_mlp);
+    Pd.post.kmeans(i) = sum(detected_kmeans)/sum(A_kmeans);
     
     Pfa.post.ind(i,:) = sum(falseAlarm_ind)/(length(A)-sum(A));
     Pfa.post.or(i) = sum(falseAlarm_or)/(length(A)-sum(A));
@@ -92,4 +103,5 @@ for i=1:length(Pfa_target)
     Pfa.post.gmm(i) = sum(falseAlarm_gmm)/(length(A)-sum(A));
     Pfa.post.lgmm(i) = sum(falseAlarm_lgmm)/(length(A_lgmm)-sum(A_lgmm));
     Pfa.post.mlp(i) = sum(falseAlarm_mlp)/(length(A_mlp)-sum(A_mlp));
+    Pfa.post.kmeans(i) = sum(falseAlarm_kmeans)/(length(A_kmeans)-sum(A_kmeans));
 end
