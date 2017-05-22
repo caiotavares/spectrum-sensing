@@ -2,6 +2,9 @@
 
 clear
 addpath(genpath('lib'));
+if (exist('data','dir') ~= 7)
+    mkdir('data')
+end
 addpath('data');
 
 % Scenario 1
@@ -17,7 +20,7 @@ scenario2.Pr = 0.5;
 scenario2.TXPower = 0.1; % PU transmission power in W
 
 scenario = scenario1;
-scenario.realiz = 5e4; % MCS realization
+scenario.realiz = 1e4; % MCS realization
 scenario.T = 5e-6; % SU spectrum sensing period
 scenario.w = 5e6; % SU spectrum sensing bandwidth
 scenario.NoisePSD_dBm = -152;%-147; % Noise PSD in dBm/Hz
@@ -25,7 +28,7 @@ scenario.NoisePower = (10^(scenario.NoisePSD_dBm/10)*1e-3)*scenario.w;
                
 %% Spectrum Sensing Procedure
 
-[X,A,~,~,~,SNR] = SS_MCS(scenario);
+[X,A,~,~,~,SNR] = MCS(scenario);
 meanSNR = mean(SNR(:,A==1),2);
 meanSNRdB = 10*log10(meanSNR); 
 
