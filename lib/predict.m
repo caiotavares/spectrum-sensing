@@ -1,44 +1,42 @@
-function [Pd, Pfa] = predict(X, A, N, models)
-
-% Setup
+function [Pd, Pfa, AUC] = predict(X, Y, N, models)
+%% Setup
 
 Pfa_target = 5e-3:5e-3:1;
 
-Pd.priori.ind = zeros(length(Pfa_target),N);
-Pd.post.ind = zeros(length(Pfa_target),N);
-Pd.post.or = zeros(length(Pfa_target),1);
-Pd.post.and = zeros(length(Pfa_target),1);
-Pd.post.bayes = zeros(length(Pfa_target),1);
-Pd.post.gmm = zeros(length(Pfa_target),1);
-Pd.post.lgmm = zeros(length(Pfa_target),1);
-Pd.post.mlp = zeros(length(Pfa_target),1);
-Pd.post.kmeans = zeros(length(Pfa_target),1);
+Pd.ind = zeros(length(Pfa_target),N);
+Pd.or = zeros(length(Pfa_target),1);
+Pd.and = zeros(length(Pfa_target),1);
+Pd.bayes = zeros(length(Pfa_target),1);
+Pd.gmm = zeros(length(Pfa_target),1);
+Pd.lgmm = zeros(length(Pfa_target),1);
+Pd.mlp = zeros(length(Pfa_target),1);
+Pd.kmeans = zeros(length(Pfa_target),1);
+Pd.svm = zeros(length(Pfa_target),1);
+Pd.nb = zeros(length(Pfa_target),1);
 
-Pfa.post.ind = zeros(length(Pfa_target),N);
-Pfa.post.or = zeros(length(Pfa_target),1);
-Pfa.post.and = zeros(length(Pfa_target),1);
-Pfa.post.bayes = zeros(length(Pfa_target),1);
-Pfa.post.gmm = zeros(length(Pfa_target),1);
-Pfa.post.lgmm = zeros(length(Pfa_target),1);
-Pfa.post.mlp = zeros(length(Pfa_target),1);
-Pfa.post.kmeans = zeros(length(Pfa_target),1);
+Pfa.ind = zeros(length(Pfa_target),N);
+Pfa.or = zeros(length(Pfa_target),1);
+Pfa.and = zeros(length(Pfa_target),1);
+Pfa.bayes = zeros(length(Pfa_target),1);
+Pfa.gmm = zeros(length(Pfa_target),1);
+Pfa.lgmm = zeros(length(Pfa_target),1);
+Pfa.mlp = zeros(length(Pfa_target),1);
+Pfa.kmeans = zeros(length(Pfa_target),1);
+Pfa.svm = zeros(length(Pfa_target),1);
+Pfa.nb = zeros(length(Pfa_target),1);
 
-%% Analytical Estimators
+%% Estimators
 
-P_gmm = models.GMM.analytical.P;
-P_lgmm = models.GMM.learned.P;
-P_wb = models.WB.P;
-P_mlp = models.MLP.P;
-P_kmeans = models.KMeans.P;
+P_gmm = models.analytical.GMM.P;
+P_wb = models.analytical.WB.P;
 
-A_lgmm = models.GMM.learned.A;
-A_mlp = models.MLP.A;
-A_kmeans = models.KMeans.A;
-
-%% Metrics
+P_lgmm = models.ML.GMM.P;
+P_mlp = models.ML.MLP.P;
+P_kmeans = models.ML.KMeans.P;
+P_svm = models.ML.SVM.P;
+P_nb = models.ML.NB.P;
 
 for i=1:length(Pfa_target)
-    
     % Regulates the Pfa for probability based models
     alpha = 1-Pfa_target(i);
     % Traditional ED threshold
@@ -46,62 +44,96 @@ for i=1:length(Pfa_target)
     % For comparison and/or validation
     %Pd.priori.ind(i,:) = gammainc(N*lambda./(2*(1+meanSNR)), N/2, 'upper');
     
+    %% Analytical Models
+    
     % SS Ind
     status_ind = X>=lambda;
-    detected_ind = A & status_ind;
+    detected_ind = Y & status_ind;
     falseAlarm_ind = logical(status_ind - detected_ind);
     
     % SS Coop OR
     status_or = sum(X >= lambda,2) > 0; % SU predictions on channel occupancy (OR rule)
-    detected_or = A & status_or;
+    detected_or = Y & status_or;
     falseAlarm_or = logical(status_or - detected_or);
     
     % SS Coop AND
     status_and = sum(X >= lambda,2) == size(X,2); % SU predictions on channel occupancy (AND rule)
-    detected_and = A & status_and;
+    detected_and = Y & status_and;
     falseAlarm_and = logical(status_and - detected_and);
     
     % SS Coop Bayesian
     status_bayes = P_wb(:,2)>=alpha;
-    detected_bayes = A & status_bayes;
+    detected_bayes = Y & status_bayes;
     falseAlarm_bayes = logical(status_bayes - detected_bayes);
     
-    % SS Coop Analytical GMM
+    % SS Coop GMM
     status_gmm = P_gmm(:,2)>=alpha;
-    detected_gmm = A & status_gmm;
+    detected_gmm = Y & status_gmm;
     falseAlarm_gmm = logical(status_gmm - detected_gmm);
     
-    % SS Coop Learned GMM
-    status_lgmm = P_lgmm(:,models.GMM.learned.positiveClass)>=alpha;
-    detected_lgmm = A_lgmm & status_lgmm;
+    %% Machine Learning Models
+    
+    % SS Coop GMM
+    status_lgmm = P_lgmm(:,models.ML.GMM.positiveClass)>=alpha;
+    detected_lgmm = Y & status_lgmm;
     falseAlarm_lgmm = logical(status_lgmm - detected_lgmm);
     
     % SS Coop MLP
-    status_mlp = P_mlp(:,2)>=alpha;
-    detected_mlp = A_mlp & status_mlp;
+    status_mlp = P_mlp(:,models.ML.MLP.positiveClass)>=alpha;
+    detected_mlp = Y & status_mlp;
     falseAlarm_mlp = logical(status_mlp - detected_mlp);
     
     % SS Coop K-Means
-    status_kmeans = P_kmeans(:,models.KMeans.positiveClass)>=alpha;
-    detected_kmeans = A_kmeans & status_kmeans;
+    status_kmeans = P_kmeans(:,models.ML.KMeans.positiveClass)>=alpha;
+    detected_kmeans = Y & status_kmeans;
     falseAlarm_kmeans = logical(status_kmeans - detected_kmeans);
     
-    % Pd and Pfa to build the ROC curve
-    Pd.post.ind(i,:) = sum(detected_ind)/sum(A);
-    Pd.post.or(i) = sum(detected_or)/sum(A);
-    Pd.post.and(i) = sum(detected_and)/sum(A);
-    Pd.post.bayes(i) = sum(detected_bayes)/sum(A);
-    Pd.post.gmm(i) = sum(detected_gmm)/sum(A);
-    Pd.post.lgmm(i) = sum(detected_lgmm)/sum(A_lgmm);
-    Pd.post.mlp(i) = sum(detected_mlp)/sum(A_mlp);
-    Pd.post.kmeans(i) = sum(detected_kmeans)/sum(A_kmeans);
+    % SS Coop SVM
+    status_svm = P_svm(:,models.ML.SVM.positiveClass)>=alpha;
+    detected_svm = Y & status_svm;
+    falseAlarm_svm = logical(status_svm - detected_svm);
     
-    Pfa.post.ind(i,:) = sum(falseAlarm_ind)/(length(A)-sum(A));
-    Pfa.post.or(i) = sum(falseAlarm_or)/(length(A)-sum(A));
-    Pfa.post.and(i) = sum(falseAlarm_and)/(length(A)-sum(A));
-    Pfa.post.bayes(i) = sum(falseAlarm_bayes)/(length(A)-sum(A));
-    Pfa.post.gmm(i) = sum(falseAlarm_gmm)/(length(A)-sum(A));
-    Pfa.post.lgmm(i) = sum(falseAlarm_lgmm)/(length(A_lgmm)-sum(A_lgmm));
-    Pfa.post.mlp(i) = sum(falseAlarm_mlp)/(length(A_mlp)-sum(A_mlp));
-    Pfa.post.kmeans(i) = sum(falseAlarm_kmeans)/(length(A_kmeans)-sum(A_kmeans));
+    % SS Coop NB
+    status_nb = P_nb(:,models.ML.NB.positiveClass)>=alpha;
+    detected_nb = Y & status_nb;
+    falseAlarm_nb = logical(status_nb - detected_nb);
+    
+    %% Pd and Pfa
+    
+    Pd.ind(i,:) = sum(detected_ind)/sum(Y);
+    Pd.or(i) = sum(detected_or)/sum(Y);
+    Pd.and(i) = sum(detected_and)/sum(Y);
+    Pd.bayes(i) = sum(detected_bayes)/sum(Y);
+    Pd.gmm(i) = sum(detected_gmm)/sum(Y);
+    Pd.lgmm(i) = sum(detected_lgmm)/sum(Y);
+    Pd.mlp(i) = sum(detected_mlp)/sum(Y);
+    Pd.kmeans(i) = sum(detected_kmeans)/sum(Y);
+    Pd.svm(i) = sum(detected_svm)/sum(Y);
+    Pd.nb(i) = sum(detected_nb)/sum(Y);
+    
+    Pfa.ind(i,:) = sum(falseAlarm_ind)/(length(Y)-sum(Y));
+    Pfa.or(i) = sum(falseAlarm_or)/(length(Y)-sum(Y));
+    Pfa.and(i) = sum(falseAlarm_and)/(length(Y)-sum(Y));
+    Pfa.bayes(i) = sum(falseAlarm_bayes)/(length(Y)-sum(Y));
+    Pfa.gmm(i) = sum(falseAlarm_gmm)/(length(Y)-sum(Y));
+    Pfa.lgmm(i) = sum(falseAlarm_lgmm)/(length(Y)-sum(Y));
+    Pfa.mlp(i) = sum(falseAlarm_mlp)/(length(Y)-sum(Y));
+    Pfa.kmeans(i) = sum(falseAlarm_kmeans)/(length(Y)-sum(Y));
+    Pfa.svm(i) = sum(falseAlarm_svm)/(length(Y)-sum(Y));
+    Pfa.nb(i) = sum(falseAlarm_nb)/(length(Y)-sum(Y));
 end
+
+%% AUC
+
+for i=1:N
+    AUC.ind(i) = trapz(Pfa.ind(:,i),Pd.ind(:,i));
+end
+AUC.or = trapz(Pfa.or,Pd.or);
+AUC.and = trapz(Pfa.and,Pd.and);
+AUC.bayes = trapz(Pfa.bayes,Pd.bayes);
+AUC.gmm = trapz(Pfa.gmm,Pd.gmm);
+AUC.lgmm = trapz(Pfa.lgmm,Pd.lgmm);
+AUC.mlp = trapz(Pfa.mlp,Pd.mlp);
+AUC.kmeans = trapz(Pfa.kmeans,Pd.kmeans);
+AUC.svm = trapz(Pfa.svm,Pd.svm);
+AUC.nb = trapz(Pfa.nb,Pd.nb);
