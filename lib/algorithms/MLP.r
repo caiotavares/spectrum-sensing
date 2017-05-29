@@ -14,9 +14,12 @@ MLP <- function ()
   colnames(X.test)[ncol(X.test)] <- "Status"
   X.test$Status <- factor(X.test$Status, levels = c(0,1))
   
-  model <- RSNNS::mlp(X.train[, -ncol(X.train)], RSNNS::decodeClassLabels(X.train$Status), size = 3)
+  model <- RSNNS::mlp(X.train[, -ncol(X.train)], RSNNS::decodeClassLabels(X.train$Status), size = 3, hiddenActFunc = "Act_Logistic")
   P_mlp <- predict(model, X.test[,-ncol(X.test)])
-  R.matlab::writeMat(P = P_mlp, con = "MLP.mat")
+  weights = weightMatrix(model)
+  hidden <- weights[1:3,4:6]
+  output <- weights[4:6,7:8]
+  R.matlab::writeMat(P = P_mlp, hidden = hidden, output = output, con = "MLP.mat")
   
   # MLP <- caret::train(X.train[,-ncol(X.train)], X.train$Status, 
   #                     trControl = trainControl(method = "cv", number = 10), method = "mlp", tuneLength = 1)
