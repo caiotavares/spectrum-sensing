@@ -9,22 +9,15 @@ MLP <- function ()
   colnames(X.train)[ncol(X.train)] <- "Status"
   X.train$Status <- factor(X.train$Status, levels = c(0,1))
   
-  X.test <- data.frame(data[,,1]$test[1])
-  X.test <- cbind(X.test, data[,,1]$test[2])
-  colnames(X.test)[ncol(X.test)] <- "Status"
-  X.test$Status <- factor(X.test$Status, levels = c(0,1))
+  hiddenUnits = 3
+  inputs = ncol(X.train)-1
   
-  model <- RSNNS::mlp(X.train[, -ncol(X.train)], RSNNS::decodeClassLabels(X.train$Status), size = 3, hiddenActFunc = "Act_Logistic")
-  P_mlp <- predict(model, X.test[,-ncol(X.test)])
+  model <- RSNNS::mlp(X.train[, -ncol(X.train)], RSNNS::decodeClassLabels(X.train$Status), size = hiddenUnits, hiddenActFunc = "Act_Logistic")
   weights = weightMatrix(model)
-  hidden <- weights[1:3,4:6]
-  output <- weights[4:6,7:8]
-  R.matlab::writeMat(P = P_mlp, hidden = hidden, output = output, con = "MLP.mat")
-  
-  # MLP <- caret::train(X.train[,-ncol(X.train)], X.train$Status, 
-  #                     trControl = trainControl(method = "cv", number = 10), method = "mlp", tuneLength = 1)
-  # prediction.MLP <- predict(MLP$finalModel, X.test[,-ncol(X.test)])
-  # R.matlab::writeMat(P_mlp = prediction.MLP, A_mlp = X.test$Status==1, con = "../data/MLP.mat")
+  W_hidden <- weights[1:inputs,(inputs+1):(inputs+hiddenUnits)]
+  W_output <- weights[(inputs+1):(inputs+hiddenUnits),(inputs+hiddenUnits+1):(inputs+hiddenUnits+2)]
+  bias <- extractNetInfo(model)$unitDefinitions$unitBias
+  R.matlab::writeMat(W_hidden = W_hidden, W_output = W_output, bias = bias, con = "MLP.mat")
 }
 
 path <- paste("C:/Users/", Sys.info()["user"], "/Repositories/mestrado/Spectrum Sensing/data", sep = "")

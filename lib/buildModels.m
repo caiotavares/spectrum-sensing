@@ -27,9 +27,11 @@ ML.train = train;
 ML.test = test;
 save('data/ss.mat','ML','-v6');
 system('Rscript --vanilla lib/algorithms/MLP.r');
-models.ML.MLP = load('MLP');
+models.ML.MLP.model = load('MLP');
 models.ML.MLP.positiveClass = 2;
 models.ML.MLP.name = 'Multilayer Perceptron';
+models.ML.MLP.model.activationFunc = @(x) 1./(1+exp(-x)); % Logistic
+models.ML.MLP.P = MLP(test.X, models.ML.MLP.model, N);
 
 %% Analytical Models
 
