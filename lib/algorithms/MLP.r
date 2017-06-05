@@ -9,8 +9,8 @@ MLP <- function ()
   colnames(X.train)[ncol(X.train)] <- "Status"
   X.train$Status <- factor(X.train$Status, levels = c(0,1))
   
-  hiddenUnits = 3
   inputs = ncol(X.train)-1
+  hiddenUnits = inputs
   
   model <- RSNNS::mlp(X.train[, -ncol(X.train)], RSNNS::decodeClassLabels(X.train$Status), size = hiddenUnits, hiddenActFunc = "Act_Logistic")
   weights = weightMatrix(model)

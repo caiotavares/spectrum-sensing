@@ -6,7 +6,6 @@ default.suppressIndividual = false;
 
 if (nargin >4)
     options = varargin{1};
-    models = varargin{2};
 else
     options = default;
 end

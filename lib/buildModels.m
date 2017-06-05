@@ -1,8 +1,9 @@
-function [models, test] = buildModels(X, A, N, meanSNR, Pr)
+function [models, test] = buildModels(X, A, scenario, meanSNR, training)
 %% Machine Learning
 
 % Setup
-training = 0.7;
+N = size(scenario.SU,1);
+Pr = scenario.Pr;
 trainingIndexes = sort(randperm(length(X), round(length(X)*training)))';
 testIndexes = setdiff(1:size(X,1),trainingIndexes)';
 train.X = X(trainingIndexes,:);
@@ -26,6 +27,7 @@ models.ML.SVM = SVM(train, test);
 ML.train = train;
 ML.test = test;
 save('data/ss.mat','ML','-v6');
+clear ML;
 system('Rscript --vanilla lib/algorithms/MLP.r');
 models.ML.MLP.model = load('MLP');
 models.ML.MLP.positiveClass = 2;
