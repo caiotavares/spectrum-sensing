@@ -1,4 +1,4 @@
-function [Y,A,PU,n,Z,SNR] = SS_MCS(scenario)
+function [Y,A,PU,n,Z,SNR] = MCS(scenario)
 
 M = size(scenario.PU,1); % Number of PUs
 N = size(scenario.SU,1); % Number of SUs

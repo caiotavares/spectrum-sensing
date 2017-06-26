@@ -1,15 +1,9 @@
-function [models, test] = buildModels(X, A, scenario, meanSNR, training, modelList)
+function [models, test] = buildModels(train, test, scenario, meanSNR, modelList)
 %% Machine Learning
 
 % Setup
 N = size(scenario.SU,1);
 Pr = scenario.Pr;
-trainingIndexes = sort(randperm(length(X), round(length(X)*training)))';
-testIndexes = setdiff(1:size(X,1),trainingIndexes)';
-train.X = X(trainingIndexes,:);
-train.Y = A(trainingIndexes,:);
-test.X = X(testIndexes,:);
-test.Y = A(testIndexes,:);
 
 % Naive Bayes
 if (ismember('Naive Bayes',modelList.ML)) 

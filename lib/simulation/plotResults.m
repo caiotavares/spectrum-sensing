@@ -1,4 +1,4 @@
-function plotResults(X,Y,models,varargin)
+function plotResults(test,models,varargin)
 
 close all
 
@@ -9,6 +9,9 @@ if (nargin >3)
 else
     options = default;
 end
+
+X = test.X;
+Y = test.Y;
 
 % Received PU signal + noise in time
 % t = ts:ts:T; % Time axis
