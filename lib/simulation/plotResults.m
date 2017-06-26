@@ -1,10 +1,10 @@
-function plotResults(X,Y,Pd,Pfa,varargin)
+function plotResults(X,Y,models,varargin)
 
 close all
 
 default.suppressIndividual = false;
 
-if (nargin >4)
+if (nargin >3)
     options = varargin{1};
 else
     options = default;
@@ -117,38 +117,56 @@ hold off
 %% ROC Curve
 
 figure
-len = length(Pfa.bayes);
+len = length(models.basic.AND.Pfa);
 mSize = 6;
 mPercent = 20;
-plot(Pfa.and,Pd.and,'k-o','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize), hold on
-plot(Pfa.or,Pd.or,'r-v','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-plot(Pfa.bayes,Pd.bayes,'b-*','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-plot(Pfa.gmm,Pd.gmm,'m-+','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-plot(Pfa.lgmm,Pd.lgmm,'m--','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-plot(Pfa.mlp,Pd.mlp,'g--','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-plot(Pfa.kmeans,Pd.kmeans,'r--','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-plot(Pfa.svm,Pd.svm,'b--','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-plot(Pfa.nb,Pd.nb,'k--','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+plot(models.basic.AND.Pfa, models.basic.AND.Pd,'k-o','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize), hold on
+leg = "AND";
+plot(models.basic.OR.Pfa, models.basic.OR.Pd,'r-v','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+leg = [leg; 'OR'];
+
 if (options.suppressIndividual == false)
-    if (size(Pfa.ind,2)==3)
-        plot(Pfa.ind(:,1),Pd.ind(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        plot(Pfa.ind(:,2),Pd.ind(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        plot(Pfa.ind(:,3),Pd.ind(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        leg = ['SU 1'; 'SU 2'; 'SU 3'];
+    if (size(models.basic.Ind.Pfa,2)==3)
+        plot(models.basic.Ind.Pfa(:,1),models.basic.Ind.Pd(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        plot(models.basic.Ind.Pfa(:,2),models.basic.Ind.Pd(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        plot(models.basic.Ind.Pfa(:,3),models.basic.Ind.Pd(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        leg = [leg; 'SU 1'; 'SU 2'; 'SU 3'];
     else
-        plot(Pfa.ind(:,1),Pd.ind(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        plot(Pfa.ind(:,2),Pd.ind(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        plot(Pfa.ind(:,3),Pd.ind(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        plot(Pfa.ind(:,4),Pd.ind(:,4),'--p','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        leg = ['SU 1'; 'SU 2'; 'SU 3'; 'SU 4'];
+        plot(models.basic.Ind.Pfa(:,1),models.basic.Ind.Pd(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        plot(models.basic.Ind.Pfa(:,2),models.basic.Ind.Pd(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        plot(models.basic.Ind.Pfa(:,3),models.basic.Ind.Pd(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        plot(models.basic.Ind.Pfa(:,4),models.basic.Ind.Pd(:,4),'--p','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        leg = [leg; 'SU 1'; 'SU 2'; 'SU 3'; 'SU 4'];
     end
-    legend(['AND','OR','Weighted Bayesian','Analytical GMM','Learned GMM',...
-            'Multilayer Perceptron','K-Means','SVM','Naive Bayes',string(leg)']);
-else
-    legend('AND','OR','Weighted Bayesian','Analytical GMM','Learned GMM',...
-           'Multilayer Perceptron','K-Means','SVM','Naive Bayes');
 end
+
+if (isfield(models,'analytical'))
+    modelNames = structfun(@(x) (plotModel(x)), models.analytical, 'UniformOutput',false);
+    fieldNames = fieldnames(modelNames);
+    for i=1:length(fieldNames)
+        name = modelNames.(char(fieldNames(i)));
+        leg = [leg; name];
+    end
+end
+
+if (isfield(models,'ML'))
+    modelNames = structfun(@(x) (plotModel(x)), models.ML, 'UniformOutput',false);
+    fieldNames = fieldnames(modelNames);
+    for i=1:length(fieldNames)
+        name = modelNames.(char(fieldNames(i)));
+        leg = [leg; name];
+    end
+end
+
+legend(string(leg));
 grid on
 xlabel 'False Alarm Probability'
 ylabel 'Detection Probability'
 hold off
+
+    function name = plotModel(model)
+        plot(model.Pfa, model.Pd,'MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        name = model.name;
+    end
+
+end

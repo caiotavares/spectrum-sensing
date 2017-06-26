@@ -19,7 +19,7 @@ scenario2.SU = [0.5 1.0 ; 2.0 1.0; 1.0 0.5; 0.5 0.5]*1e3;
 scenario2.Pr = 0.5;
 scenario2.TXPower = 0.1; % PU transmission power in W
 
-scenario = scenario2;
+scenario = scenario1;
 scenario.realiz = 3e4; % MCS realization
 scenario.T = 5e-6; % SU spectrum sensing period
 scenario.w = 5e6; % SU spectrum sensing bandwidth
@@ -34,7 +34,11 @@ meanSNRdB = 10*log10(meanSNR);
 
 %% Build models, predict the channel status and plot results
 
-[models, test]= buildModels(X, Y, scenario, meanSNR, 0.7);
-[Pd, Pfa, AUC] = predict(test.X, test.Y, size(scenario.SU,1), models);
-options.suppressIndividual = true;
-plotResults(X,Y,Pd,Pfa,options);
+modelList.analytical = {'Gaussian Mixture Model' 
+                        'Weighted Naive Bayes'
+                        'Maximum Ratio Combining'};
+modelList.ML = {'Naive Bayes'};
+[models, test]= buildModels(X, Y, scenario, meanSNR, 0.7, modelList);
+models = predict(test.X, test.Y, size(scenario.SU,1), models);
+options.suppressIndividual = false;
+plotResults(X,Y,models,options);
