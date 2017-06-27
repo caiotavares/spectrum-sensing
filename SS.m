@@ -26,13 +26,19 @@ scenario.w = 5e6; % SU spectrum sensing bandwidth
 scenario.NoisePSD_dBm = -153;%-153; % Noise PSD in dBm/Hz
 scenario.NoisePower = (10^(scenario.NoisePSD_dBm/10)*1e-3)*scenario.w;
 
-training = scenario;
-training.realiz = 50;
+trainingScenario = scenario;
+trainingScenario.realiz = 1e4;
+
+train = struct();
+modelsHolder = struct();
+epochs = 10;
                
 %% Spectrum Sensing Procedure
 
 [test.X,test.Y,~,~,~,SNR] = MCS(scenario);
-[train.X, train.Y,~,~,~,~] = MCS(training); 
+for i=1:epochs
+    [train(i).X, train(i).Y,~,~,~,~] = MCS(trainingScenario);
+end
 meanSNR = mean(SNR(:,test.Y==1),2);
 meanSNRdB = 10*log10(meanSNR); 
 
@@ -42,7 +48,23 @@ modelList.analytical = {'Gaussian Mixture Model'
                         'Weighted Naive Bayes'
                         'Maximum Ratio Combining'};
 modelList.ML = {'Naive Bayes'};
-[models, test]= buildModels(train, test, scenario, meanSNR, modelList);
-models = predict(test, size(scenario.SU,1), models);
+
+for i=1:epochs
+    modelsHolder(i).models = buildModels(train(i), test, scenario, meanSNR, modelList);
+    modelsHolder(i).models = predict(test, size(scenario.SU,1), modelsHolder(i).models);
+end
+
+models = modelsHolder(1).models;
+
+for i=2:epochs
+    models.ML.NB.Pd = models.ML.NB.Pd + modelsHolder(i).models.ML.NB.Pd;
+    models.ML.NB.Pfa = models.ML.NB.Pfa + modelsHolder(i).models.ML.NB.Pfa;
+    models.ML.NB.AUC = models.ML.NB.AUC + modelsHolder(i).models.ML.NB.AUC;
+end
+
+models.ML.NB.Pd = models.ML.NB.Pd./epochs;
+models.ML.NB.Pfa = models.ML.NB.Pfa./epochs;
+models.ML.NB.AUC = models.ML.NB.AUC./epochs;
+
 options.suppressIndividual = false;
 plotResults(test,models,options);

@@ -1,4 +1,4 @@
-function [models, test] = buildModels(train, test, scenario, meanSNR, modelList)
+function models = buildModels(train, test, scenario, meanSNR, modelList)
 %% Machine Learning
 
 % Setup
@@ -80,4 +80,3 @@ if (ismember('Maximum Ratio Combining',modelList.analytical))
     models.analytical.MRC.P = [models.analytical.MRC.P 1-models.analytical.MRC.P];
     models.analytical.MRC.name = 'Maximum Ratio Combining';
 end
-
