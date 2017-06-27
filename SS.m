@@ -15,7 +15,7 @@ scenario1.TXPower = 0.1; % PU transmission power in W
 
 % Scenario 2
 scenario2.PU = [0 0]*1e3;
-scenario2.SU = [0 0.5 ; 0 0.5 ; 0 0.75 ; 0 1]*1e3;
+scenario2.SU = [0 0.5 ; 0 0.75 ; 0 1; 0 0.5]*1e3;
 scenario2.Pr = 0.5;
 scenario2.TXPower = 0.1; % PU transmission power in W
 
@@ -27,11 +27,11 @@ scenario.NoisePSD_dBm = -153;%-153; % Noise PSD in dBm/Hz
 scenario.NoisePower = (10^(scenario.NoisePSD_dBm/10)*1e-3)*scenario.w;
 
 trainingScenario = scenario;
-trainingScenario.realiz = 1e4;
+trainingScenario.realiz = 500;
 
 train = struct();
 modelsHolder = struct();
-epochs = 10;
+epochs = 20;
                
 %% Spectrum Sensing Procedure
 
@@ -66,5 +66,7 @@ models.ML.NB.Pd = models.ML.NB.Pd./epochs;
 models.ML.NB.Pfa = models.ML.NB.Pfa./epochs;
 models.ML.NB.AUC = models.ML.NB.AUC./epochs;
 
-options.suppressIndividual = false;
+options = {'ROC', 'IndividualROC'};
 plotResults(test,models,options);
+
+fprintf('NB AUC -> %3.3f\n', models.ML.NB.AUC)

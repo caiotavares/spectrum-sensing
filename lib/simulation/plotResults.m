@@ -1,14 +1,6 @@
-function plotResults(test,models,varargin)
+function plotResults(test,models,options)
 
 close all
-
-default.suppressIndividual = false;
-
-if (nargin >3)
-    options = varargin{1};
-else
-    options = default;
-end
 
 X = test.X;
 Y = test.Y;
@@ -33,16 +25,18 @@ Y = test.Y;
 
 
 % Actual channel states
-figure
-plot3(X(Y==1,1),X(Y==1,2),X(Y==1,3),'r+'), hold on
-plot3(X(Y==0,1),X(Y==0,2),X(Y==0,3),'bo')
-grid on
-% title('Channel States')
-legend('Channel unavailable','Channel available','Location','NorthWest');
-xlabel 'Normalized energy level of SU_1'
-ylabel 'Normalized energy level of SU_2'
-zlabel 'Normalized energy level of SU_3'
-hold off
+if (ismember('Channel States', options))
+    figure
+    plot3(X(Y==1,1),X(Y==1,2),X(Y==1,3),'r+'), hold on
+    plot3(X(Y==0,1),X(Y==0,2),X(Y==0,3),'bo')
+    grid on
+    % title('Channel States')
+    legend('Channel unavailable','Channel available','Location','NorthWest');
+    xlabel 'Normalized energy level of SU_1'
+    ylabel 'Normalized energy level of SU_2'
+    zlabel 'Normalized energy level of SU_3'
+    hold off
+end
 
 
 % Analytical GMM contours for SU1 and SU3
@@ -119,56 +113,62 @@ hold off
 
 %% ROC Curve
 
-figure
-len = length(models.basic.AND.Pfa);
-mSize = 6;
-mPercent = 20;
-plot(models.basic.AND.Pfa, models.basic.AND.Pd,'k-o','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize), hold on
-leg = "AND";
-plot(models.basic.OR.Pfa, models.basic.OR.Pd,'r-v','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-leg = [leg; 'OR'];
-
-if (options.suppressIndividual == false)
-    if (size(models.basic.Ind.Pfa,2)==3)
-        plot(models.basic.Ind.Pfa(:,1),models.basic.Ind.Pd(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        plot(models.basic.Ind.Pfa(:,2),models.basic.Ind.Pd(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        plot(models.basic.Ind.Pfa(:,3),models.basic.Ind.Pd(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        leg = [leg; 'SU 1'; 'SU 2'; 'SU 3'];
-    else
-        plot(models.basic.Ind.Pfa(:,1),models.basic.Ind.Pd(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        plot(models.basic.Ind.Pfa(:,2),models.basic.Ind.Pd(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        plot(models.basic.Ind.Pfa(:,3),models.basic.Ind.Pd(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        plot(models.basic.Ind.Pfa(:,4),models.basic.Ind.Pd(:,4),'--p','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
-        leg = [leg; 'SU 1'; 'SU 2'; 'SU 3'; 'SU 4'];
+if (ismember('ROC',options))
+    figure
+    mSize = 6;
+    mPercent = 20;
+    if (isfield(models,'basic'))
+        len = length(models.basic.AND.Pfa);
+        plot(models.basic.AND.Pfa, models.basic.AND.Pd,'k-o','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize), hold on
+        leg = "AND";
+        plot(models.basic.OR.Pfa, models.basic.OR.Pd,'r-v','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        leg = [leg; 'OR'];
+        
+        if (ismember('IndividualROC',options))
+            if (size(models.basic.Ind.Pfa,2)==3)
+                plot(models.basic.Ind.Pfa(:,1),models.basic.Ind.Pd(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+                plot(models.basic.Ind.Pfa(:,2),models.basic.Ind.Pd(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+                plot(models.basic.Ind.Pfa(:,3),models.basic.Ind.Pd(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+                leg = [leg; 'SU 1'; 'SU 2'; 'SU 3'];
+            else
+                plot(models.basic.Ind.Pfa(:,1),models.basic.Ind.Pd(:,1),'--d','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+                plot(models.basic.Ind.Pfa(:,2),models.basic.Ind.Pd(:,2),'-->','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+                plot(models.basic.Ind.Pfa(:,3),models.basic.Ind.Pd(:,3),'--<','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+                plot(models.basic.Ind.Pfa(:,4),models.basic.Ind.Pd(:,4),'--p','MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+                leg = [leg; 'SU 1'; 'SU 2'; 'SU 3'; 'SU 4'];
+            end
+        end
     end
-end
-
-if (isfield(models,'analytical'))
-    modelNames = structfun(@(x) (plotModel(x)), models.analytical, 'UniformOutput',false);
-    fieldNames = fieldnames(modelNames);
-    for i=1:length(fieldNames)
-        name = modelNames.(char(fieldNames(i)));
-        leg = [leg; name];
+    
+    if (isfield(models,'analytical'))
+        modelNames = structfun(@(x) (plotModel(x)), models.analytical, 'UniformOutput',false);
+        fieldNames = fieldnames(modelNames);
+        for i=1:length(fieldNames)
+            name = modelNames.(char(fieldNames(i)));
+            leg = [leg; name];
+        end
     end
-end
-
-if (isfield(models,'ML'))
-    modelNames = structfun(@(x) (plotModel(x)), models.ML, 'UniformOutput',false);
-    fieldNames = fieldnames(modelNames);
-    for i=1:length(fieldNames)
-        name = modelNames.(char(fieldNames(i)));
-        leg = [leg; name];
+    
+    if (isfield(models,'ML'))
+        modelNames = structfun(@(x) (plotModel(x)), models.ML, 'UniformOutput',false);
+        fieldNames = fieldnames(modelNames);
+        for i=1:length(fieldNames)
+            name = modelNames.(char(fieldNames(i)));
+            leg = [leg; name];
+        end
     end
+    
+    legend(string(leg));
+    grid on
+    xlabel 'False Alarm Probability'
+    ylabel 'Detection Probability'
+    hold off
+    
 end
-
-legend(string(leg));
-grid on
-xlabel 'False Alarm Probability'
-ylabel 'Detection Probability'
-hold off
 
     function name = plotModel(model)
-        plot(model.Pfa, model.Pd,'MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize)
+        len = length(model.Pfa);
+        plot(model.Pfa, model.Pd,'MarkerIndices',1:len/mPercent:len,'MarkerSize',mSize), hold on
         name = model.name;
     end
 

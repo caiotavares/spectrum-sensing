@@ -2,3 +2,4 @@
 *.orig
 *.mat
 *.Rhistory
+*.fig
