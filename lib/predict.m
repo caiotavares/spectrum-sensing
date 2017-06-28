@@ -1,7 +1,7 @@
 function models = predict(test, N, models)
 %% Setup
 
-Pfa_target = 5e-3:5e-3:1;
+Pfa_target = 2.5e-3:2.5e-3:1;
 
 X = test.X;
 Y = test.Y;

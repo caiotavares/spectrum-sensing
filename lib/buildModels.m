@@ -43,11 +43,10 @@ end
 
 % Weighted Naive Bayes
 if (ismember('Weighted Naive Bayes',modelList.analytical)) 
-    e = 1e-6;
     shape = N/2;
     scale = 2*ones(size(test.X,1),1).*(1+meanSNR)';
-    P_X0_H1 = gamcdf(N*(test.X+e),shape,scale) - gamcdf(N*(test.X-e),shape,scale);
-    P_X0_H0 = chi2cdf((test.X+e)*N,N) - chi2cdf((test.X-e)*N,N);
+    P_X0_H1 = gampdf(N*test.X,shape,scale);
+    P_X0_H0 = chi2pdf(N*test.X,N);
     P_H1 = Pr;
     P_H0 = 1-P_H1;
     P_H1_X0 = P_X0_H1*P_H1./(P_X0_H0*P_H0 + P_X0_H1*P_H1);
