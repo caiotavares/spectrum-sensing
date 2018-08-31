@@ -6,4 +6,4 @@ function KMeans = KMeans(train, test)
 KMeans.P = 1-(D./sum(D,2)); % Normalizing the distance and complementing to reflect the probability
 KMeans.positiveClass = index(end);
 KMeans.model = C;
-KMeans.name = 'K-Means';
+KMeans.name = 'K-Means Clustering';

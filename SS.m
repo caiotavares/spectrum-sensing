@@ -44,16 +44,19 @@ meanSNRdB = 10*log10(meanSNR);
 
 %% Build models, predict the channel status and plot results
 
-modelList.analytical = {'Gaussian Mixture Model' 
-                        'Weighted Naive Bayes'
-                        'Maximum Ratio Combining'};
-modelList.ML = {'Naive Bayes'};
+modelList.analytical = {'Maximum Ratio Combining'};
+modelList.ML = {'Naive Bayes' 
+                'Support Vector Machine' 
+                'Multilayer Perceptron'
+                'K-Means Clustering'
+                'Gaussian Mixture Model'};
 
 for i=1:epochs
     modelsHolder(i).models = buildModels(train(i), test, scenario, meanSNR, modelList);
     modelsHolder(i).models = predict(test, size(scenario.SU,1), modelsHolder(i).models);
 end
 
+structfun( @(x) (x), modelsHolder.models.ML)
 models = modelsHolder(1).models;
 
 for i=2:epochs
@@ -66,7 +69,5 @@ models.ML.NB.Pd = models.ML.NB.Pd./epochs;
 models.ML.NB.Pfa = models.ML.NB.Pfa./epochs;
 models.ML.NB.AUC = models.ML.NB.AUC./epochs;
 
-options = {'ROC', 'IndividualROC'};
-plotResults(test,models,options);
-
-fprintf('NB AUC -> %3.3f\n', models.ML.NB.AUC)
+% options = {'ROC', 'IndividualROC'};
+% plotResults(test,models,options);

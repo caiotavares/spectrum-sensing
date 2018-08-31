@@ -6,3 +6,4 @@ SVM.model = fitPosterior(scoreModel); % Transforms score to posterior probabilit
 SVM.positiveClass = 2;
 SVM.name = 'Support Vector Machine';
 
+    
