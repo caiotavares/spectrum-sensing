@@ -44,30 +44,65 @@ meanSNRdB = 10*log10(meanSNR);
 
 %% Build models, predict the channel status and plot results
 
-modelList.analytical = {'Maximum Ratio Combining'};
-modelList.ML = {'Naive Bayes' 
-                'Support Vector Machine' 
-                'Multilayer Perceptron'
-                'K-Means Clustering'
-                'Gaussian Mixture Model'};
+manifest.analytical.MRC = true;
+manifest.analytical.WB = false;
+manifest.analytical.GMM = false;
+manifest.ML.NB = true;
+manifest.ML.SVM = true;
+manifest.ML.MLP = true;
+manifest.ML.KMeans = true;
+manifest.ML.GMM = true;
 
 for i=1:epochs
-    modelsHolder(i).models = buildModels(train(i), test, scenario, meanSNR, modelList);
+    modelsHolder(i).models = buildModels(train(i), test, scenario, meanSNR, manifest);
     modelsHolder(i).models = predict(test, size(scenario.SU,1), modelsHolder(i).models);
 end
 
-structfun( @(x) (x), modelsHolder.models.ML)
-models = modelsHolder(1).models;
+models.Pd.NB = zeros(length(modelsHolder(1).models.ML.NB.Pd),1);
+models.Pd.GMM = zeros(length(modelsHolder(1).models.ML.GMM.Pd),1);
+models.Pd.KMeans = zeros(length(modelsHolder(1).models.ML.KMeans.Pd),1);
+models.Pd.SVM = zeros(length(modelsHolder(1).models.ML.SVM.Pd),1);
+models.Pd.MLP = zeros(length(modelsHolder(1).models.ML.MLP.Pd),1);
 
-for i=2:epochs
-    models.ML.NB.Pd = models.ML.NB.Pd + modelsHolder(i).models.ML.NB.Pd;
-    models.ML.NB.Pfa = models.ML.NB.Pfa + modelsHolder(i).models.ML.NB.Pfa;
-    models.ML.NB.AUC = models.ML.NB.AUC + modelsHolder(i).models.ML.NB.AUC;
+models.Pfa.NB = zeros(length(modelsHolder(1).models.ML.NB.Pfa),1);
+models.Pfa.GMM = zeros(length(modelsHolder(1).models.ML.GMM.Pfa),1);
+models.Pfa.KMeans = zeros(length(modelsHolder(1).models.ML.KMeans.Pfa),1);
+models.Pfa.SVM = zeros(length(modelsHolder(1).models.ML.SVM.Pfa),1);
+models.Pfa.MLP = zeros(length(modelsHolder(1).models.ML.MLP.Pfa),1);
+
+models.AUC.NB = zeros(length(modelsHolder(1).models.ML.NB.AUC),1);
+models.AUC.GMM = zeros(length(modelsHolder(1).models.ML.GMM.AUC),1);
+models.AUC.KMeans = zeros(length(modelsHolder(1).models.ML.KMeans.AUC),1);
+models.AUC.SVM = zeros(length(modelsHolder(1).models.ML.SVM.AUC),1);
+
+models.AUC.MLP = zeros(length(modelsHolder(1).models.ML.MLP.AUC),1);
+
+for i=1:epochs
+    models.Pd = sumstructs(structfun( @(m) (m.Pd) , modelsHolder(i).models.ML, 'UniformOutput', false), models.Pd);
+    models.Pd = sumstructs(structfun( @(m) (m.Pfa) , modelsHolder(i).models.ML, 'UniformOutput', false), models.Pfa);
+    models.Pd = sumstructs(structfun( @(m) (m.AUC) , modelsHolder(i).models.ML, 'UniformOutput', false), models.AUC);
 end
 
-models.ML.NB.Pd = models.ML.NB.Pd./epochs;
-models.ML.NB.Pfa = models.ML.NB.Pfa./epochs;
-models.ML.NB.AUC = models.ML.NB.AUC./epochs;
+models.Pd = models.Pd./epochs;
+models.Pfa = models.Pfa./epochs;
+models.AUC = models.AUC./epochs;
+
+% 
+%     function models = normalize(models)
+%         structfun( @(m) (m.) )  models.ML.NB.Pd = models.ML.NB.Pd + modelsHolder(i).models.ML.NB.Pd;
+%     end
+% 
+% for i=2:epochs
+%     models.ML.NB.Pd = models.ML.NB.Pd + modelsHolder(i).models.ML.NB.Pd;
+%     models.ML.NB.Pfa = models.ML.NB.Pfa + modelsHolder(i).models.ML.NB.Pfa;
+%     models.ML.NB.AUC = models.ML.NB.AUC + modelsHolder(i).models.ML.NB.AUC;
+% end
+% 
+% models.ML.NB.Pd = models.ML.NB.Pd./epochs;
+% models.ML.NB.Pfa = models.ML.NB.Pfa./epochs;
+% models.ML.NB.AUC = models.ML.NB.AUC./epochs;
 
 % options = {'ROC', 'IndividualROC'};
-% plotResults(test,models,options);
+plotResults(test,models,options);
+
+

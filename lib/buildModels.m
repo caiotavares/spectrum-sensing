@@ -1,4 +1,4 @@
-function models = buildModels(train, test, scenario, meanSNR, modelList)
+function models = buildModels(train, test, scenario, meanSNR, manifest)
 %% Machine Learning
 
 % Setup
@@ -6,27 +6,27 @@ N = size(scenario.SU,1);
 Pr = scenario.Pr;
 
 % Naive Bayes
-if (ismember('Naive Bayes',modelList.ML)) 
+if (manifest.ML.NB) 
     models.ML.NB = NB(train,test);
 end
 
 % Gaussian Mixture Model
-if (ismember('Gaussian Mixture Model',modelList.ML)) 
+if (manifest.ML.GMM) 
     models.ML.GMM = GMM(train, test);
 end
 
 % K-Means Clustering
-if (ismember('K-Means Clustering',modelList.ML)) 
+if (manifest.ML.KMeans) 
     models.ML.KMeans = KMeans(train, test);
 end
 
 % Support Vector Machine
-if (ismember('Support Vector Machine',modelList.ML))
+if (manifest.ML.SVM)
     models.ML.SVM = SVM(train, test);
 end
 
 % Multilayer Perceptron
-if (ismember('Multilayer Perceptron',modelList.ML)) 
+if (manifest.ML.MLP)
     ML.train = train;
     ML.test = test;
     save('data/ss.mat','ML','-v6');
@@ -42,7 +42,7 @@ end
 %% Analytical Models
 
 % Weighted Naive Bayes
-if (ismember('Weighted Naive Bayes',modelList.analytical)) 
+if (manifest.analytical.WB)
     shape = N/2;
     scale = 2*ones(size(test.X,1),1).*(1+meanSNR)';
     P_X0_H1 = gampdf(N*test.X,shape,scale);
@@ -57,7 +57,7 @@ if (ismember('Weighted Naive Bayes',modelList.analytical))
 end
 
 % Gaussian Mixture Model
-if (ismember('Gaussian Mixture Model',modelList.analytical)) 
+if (manifest.analytical.GMM)
     mu = [ones(1,length(meanSNR));
           ones(1,length(meanSNR)).*(1+meanSNR)'];
     sigma = [ones(1,length(meanSNR))*(2*N/N^2);
@@ -72,7 +72,7 @@ if (ismember('Gaussian Mixture Model',modelList.analytical))
 end
 
 % MRC
-if (ismember('Maximum Ratio Combining',modelList.analytical)) 
+if (manifest.analytical.MRC)
     w = meanSNR;
     models.analytical.MRC.E = test.X*w./sum(w); % Energy level
     models.analytical.MRC.P = models.analytical.MRC.E./max(models.analytical.MRC.E);
