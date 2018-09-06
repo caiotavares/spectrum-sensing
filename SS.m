@@ -42,7 +42,7 @@ end
 meanSNR = mean(SNR(:,test.Y==1),2);
 meanSNRdB = 10*log10(meanSNR); 
 
-%% Build models, predict the channel status and plot results
+%% Build models and predict the channel status
 
 manifest.analytical.MRC = true;
 manifest.analytical.WB = false;
@@ -58,46 +58,9 @@ for i=1:epochs
     modelsHolder(i).models = predict(test, size(scenario.SU,1), modelsHolder(i).models);
 end
 
-models.Pd.NB = zeros(length(modelsHolder(1).models.ML.NB.Pd),1);
-models.Pd.GMM = zeros(length(modelsHolder(1).models.ML.GMM.Pd),1);
-models.Pd.KMeans = zeros(length(modelsHolder(1).models.ML.KMeans.Pd),1);
-models.Pd.SVM = zeros(length(modelsHolder(1).models.ML.SVM.Pd),1);
-models.Pd.MLP = zeros(length(modelsHolder(1).models.ML.MLP.Pd),1);
+%% Average machine learning models for the trained epochs
+models = normalize(modelsHolder,epochs);
 
-models.Pfa.NB = zeros(length(modelsHolder(1).models.ML.NB.Pfa),1);
-models.Pfa.GMM = zeros(length(modelsHolder(1).models.ML.GMM.Pfa),1);
-models.Pfa.KMeans = zeros(length(modelsHolder(1).models.ML.KMeans.Pfa),1);
-models.Pfa.SVM = zeros(length(modelsHolder(1).models.ML.SVM.Pfa),1);
-models.Pfa.MLP = zeros(length(modelsHolder(1).models.ML.MLP.Pfa),1);
-
-models.AUC.NB = zeros(length(modelsHolder(1).models.ML.NB.AUC),1);
-models.AUC.GMM = zeros(length(modelsHolder(1).models.ML.GMM.AUC),1);
-models.AUC.KMeans = zeros(length(modelsHolder(1).models.ML.KMeans.AUC),1);
-models.AUC.SVM = zeros(length(modelsHolder(1).models.ML.SVM.AUC),1);
-models.AUC.MLP = zeros(length(modelsHolder(1).models.ML.MLP.AUC),1);
-
-for i=1:epochs
-    models.Pd = sumstructs(structfun( @(m) (m.Pd) , modelsHolder(i).models.ML, 'UniformOutput', false), models.Pd);
-    models.Pfa = sumstructs(structfun( @(m) (m.Pfa) , modelsHolder(i).models.ML, 'UniformOutput', false), models.Pfa);
-    models.AUC = sumstructs(structfun( @(m) (m.AUC) , modelsHolder(i).models.ML, 'UniformOutput', false), models.AUC);
-end
-
-models.Pd = structfun( @(m) (m./epochs), models.Pd,'UniformOutput',false);
-models.Pfa = structfun( @(m) (m./epochs), models.Pfa,'UniformOutput',false);
-models.AUC = structfun( @(m) (m./epochs), models.AUC,'UniformOutput',false);
-
-resultModels = modelsHolder(1).models;
-
-modelNames = fieldnames(resultModels.ML);
-fieldNames = fieldnames(models);
-
-for j=1:length(modelNames)
-    m = modelNames(j);
-    for k=1:length(fieldNames)
-        f = fieldNames(k);
-        resultModels.ML.(m{:}).(f{:}) = models.(f{:}).(m{:});
-    end
-end
-
+%% Plot the results
 options = {'ROC', 'IndividualROC'};
-plotResults(test,resultModels,options);
+plotResults(test,models,options);
