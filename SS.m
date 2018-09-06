@@ -74,35 +74,30 @@ models.AUC.NB = zeros(length(modelsHolder(1).models.ML.NB.AUC),1);
 models.AUC.GMM = zeros(length(modelsHolder(1).models.ML.GMM.AUC),1);
 models.AUC.KMeans = zeros(length(modelsHolder(1).models.ML.KMeans.AUC),1);
 models.AUC.SVM = zeros(length(modelsHolder(1).models.ML.SVM.AUC),1);
-
 models.AUC.MLP = zeros(length(modelsHolder(1).models.ML.MLP.AUC),1);
 
 for i=1:epochs
     models.Pd = sumstructs(structfun( @(m) (m.Pd) , modelsHolder(i).models.ML, 'UniformOutput', false), models.Pd);
-    models.Pd = sumstructs(structfun( @(m) (m.Pfa) , modelsHolder(i).models.ML, 'UniformOutput', false), models.Pfa);
-    models.Pd = sumstructs(structfun( @(m) (m.AUC) , modelsHolder(i).models.ML, 'UniformOutput', false), models.AUC);
+    models.Pfa = sumstructs(structfun( @(m) (m.Pfa) , modelsHolder(i).models.ML, 'UniformOutput', false), models.Pfa);
+    models.AUC = sumstructs(structfun( @(m) (m.AUC) , modelsHolder(i).models.ML, 'UniformOutput', false), models.AUC);
 end
 
-models.Pd = models.Pd./epochs;
-models.Pfa = models.Pfa./epochs;
-models.AUC = models.AUC./epochs;
+models.Pd = structfun( @(m) (m./epochs), models.Pd,'UniformOutput',false);
+models.Pfa = structfun( @(m) (m./epochs), models.Pfa,'UniformOutput',false);
+models.AUC = structfun( @(m) (m./epochs), models.AUC,'UniformOutput',false);
 
-% 
-%     function models = normalize(models)
-%         structfun( @(m) (m.) )  models.ML.NB.Pd = models.ML.NB.Pd + modelsHolder(i).models.ML.NB.Pd;
-%     end
-% 
-% for i=2:epochs
-%     models.ML.NB.Pd = models.ML.NB.Pd + modelsHolder(i).models.ML.NB.Pd;
-%     models.ML.NB.Pfa = models.ML.NB.Pfa + modelsHolder(i).models.ML.NB.Pfa;
-%     models.ML.NB.AUC = models.ML.NB.AUC + modelsHolder(i).models.ML.NB.AUC;
-% end
-% 
-% models.ML.NB.Pd = models.ML.NB.Pd./epochs;
-% models.ML.NB.Pfa = models.ML.NB.Pfa./epochs;
-% models.ML.NB.AUC = models.ML.NB.AUC./epochs;
+resultModels = modelsHolder(1).models;
 
-% options = {'ROC', 'IndividualROC'};
-plotResults(test,models,options);
+modelNames = fieldnames(resultModels.ML);
+fieldNames = fieldnames(models);
 
+for j=1:length(modelNames)
+    m = modelNames(j);
+    for k=1:length(fieldNames)
+        f = fieldNames(k);
+        resultModels.ML.(m{:}).(f{:}) = models.(f{:}).(m{:});
+    end
+end
 
+options = {'ROC', 'IndividualROC'};
+plotResults(test,resultModels,options);
