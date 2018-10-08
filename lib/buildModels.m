@@ -1,4 +1,4 @@
-function models = buildModels(train, test, scenario, meanSNR, manifest)
+function models = buildModels(train, test, scenario, meanSNR, SNR, manifest)
 %% Machine Learning
 
 % Setup

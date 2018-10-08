@@ -44,22 +44,27 @@ meanSNRdB = 10*log10(meanSNR);
 
 %% Build models and predict the channel status
 
+% We are averaging the ML models trained over 20 epochs but only testing
+% on the same samples. Not sure if this is a fair comparison to the
+% analytical models.
+
+
 manifest.analytical.MRC = true;
 manifest.analytical.WB = false;
 manifest.analytical.GMM = false;
 manifest.ML.NB = true;
 manifest.ML.SVM = true;
 manifest.ML.MLP = true;
-manifest.ML.KMeans = true;
-manifest.ML.GMM = true;
+manifest.ML.KMeans = false;
+manifest.ML.GMM = false;
 
 for i=1:epochs
-    modelsHolder(i).models = buildModels(train(i), test, scenario, meanSNR, manifest);
+    modelsHolder(i).models = buildModels(train(i), test, scenario, meanSNR, SNR, manifest);
     modelsHolder(i).models = predict(test, size(scenario.SU,1), modelsHolder(i).models);
 end
 
 %% Average machine learning models for the trained epochs
-models = normalize(modelsHolder,epochs);
+models = normalize(modelsHolder,epochs, manifest);
 
 %% Plot the results
 options = {'ROC', 'IndividualROC'};
