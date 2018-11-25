@@ -65,7 +65,7 @@ for i=1:length(Pfa_target)
     
     %% Analytical Models
     
-    % Coop Bayesian
+    % Bayesian
     if (ismember('Weighted Naive Bayes', modelList.analytical))
         status_bayes = models.analytical.WB.P(:,2)>=alpha;
         detected_bayes = Y & status_bayes;
@@ -74,7 +74,7 @@ for i=1:length(Pfa_target)
         models.analytical.WB.Pfa(i) = sum(falseAlarm_bayes)/(length(Y)-sum(Y));
     end
     
-    % Coop GMM
+    % GMM
     if (ismember('Gaussian Mixture Model', modelList.analytical))
         status_gmm = models.analytical.GMM.P(:,2)>=alpha;
         detected_gmm = Y & status_gmm;
@@ -83,8 +83,8 @@ for i=1:length(Pfa_target)
         models.analytical.GMM.Pfa(i) = sum(falseAlarm_gmm)/(length(Y)-sum(Y));
     end
     
-    % Coop MRC
-    if (ismember('Maximum Ratio Combining', modelList.analytical))
+    % MRC
+    if (ismember('MRC', modelList.analytical))
         status_mrc = models.analytical.MRC.E>=lambda;
         detected_mrc = Y & status_mrc;
         falseAlarm_mrc = logical(status_mrc - detected_mrc);
@@ -94,8 +94,8 @@ for i=1:length(Pfa_target)
     
     %% Machine Learning Models
     
-    % Coop GMM
-    if (ismember('Gaussian Mixture Model', modelList.ML))
+    % GMM
+    if (ismember('GMM', modelList.ML))
         status_lgmm = models.ML.GMM.P(:,models.ML.GMM.positiveClass)>=alpha;
         detected_lgmm = Y & status_lgmm;
         falseAlarm_lgmm = logical(status_lgmm - detected_lgmm);
@@ -103,8 +103,8 @@ for i=1:length(Pfa_target)
         models.ML.GMM.Pfa(i) = sum(falseAlarm_lgmm)/(length(Y)-sum(Y));
     end
     
-    % Coop MLP
-    if (ismember('Multilayer Perceptron', modelList.ML))
+    % MLP
+    if (ismember('MLP', modelList.ML))
         status_mlp = models.ML.MLP.P(:,models.ML.MLP.positiveClass)>=alpha;
         detected_mlp = Y & status_mlp;
         falseAlarm_mlp = logical(status_mlp - detected_mlp);
@@ -112,8 +112,8 @@ for i=1:length(Pfa_target)
         models.ML.MLP.Pfa(i) = sum(falseAlarm_mlp)/(length(Y)-sum(Y));
     end
     
-    % Coop K-Means
-    if (ismember('K-Means Clustering', modelList.ML))
+    % K-Means
+    if (ismember('K-Means', modelList.ML))
         status_kmeans = models.ML.KMeans.P(:,models.ML.KMeans.positiveClass)>=alpha;
         detected_kmeans = Y & status_kmeans;
         falseAlarm_kmeans = logical(status_kmeans - detected_kmeans);
@@ -121,8 +121,8 @@ for i=1:length(Pfa_target)
         models.ML.KMeans.Pfa(i) = sum(falseAlarm_kmeans)/(length(Y)-sum(Y));
     end
     
-    % Coop SVM
-    if (ismember('Support Vector Machine', modelList.ML))
+    % SVM
+    if (ismember('SVM', modelList.ML))
         status_svm = models.ML.SVM.P(:,models.ML.SVM.positiveClass)>=alpha;
         detected_svm = Y & status_svm;
         falseAlarm_svm = logical(status_svm - detected_svm);
@@ -130,8 +130,8 @@ for i=1:length(Pfa_target)
         models.ML.SVM.Pfa(i) = sum(falseAlarm_svm)/(length(Y)-sum(Y));
     end
     
-    % Coop NB
-    if (ismember('Naive Bayes', modelList.ML))
+    % NB
+    if (ismember('NB', modelList.ML))
         status_nb = models.ML.NB.P(:,models.ML.NB.positiveClass)>=alpha;
         detected_nb = Y & status_nb;
         falseAlarm_nb = logical(status_nb - detected_nb);

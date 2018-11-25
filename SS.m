@@ -48,7 +48,6 @@ meanSNRdB = 10*log10(meanSNR);
 % on the same samples. Not sure if this is a fair comparison to the
 % analytical models.
 
-
 manifest.analytical.MRC = true;
 manifest.analytical.WB = false;
 manifest.analytical.GMM = false;

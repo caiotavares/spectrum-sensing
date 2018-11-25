@@ -34,7 +34,7 @@ if (manifest.ML.MLP)
     system('Rscript --vanilla lib/algorithms/MLP.r');
     models.ML.MLP.model = load('MLP');
     models.ML.MLP.positiveClass = 2;
-    models.ML.MLP.name = 'Multilayer Perceptron';
+    models.ML.MLP.name = 'MLP';
     models.ML.MLP.model.activationFunc = @(x) 1./(1+exp(-x)); % Logistic
     models.ML.MLP.P = MLP(test.X, models.ML.MLP.model, N);
 end
@@ -77,5 +77,5 @@ if (manifest.analytical.MRC)
     models.analytical.MRC.E = test.X*w./sum(w); % Energy level
     models.analytical.MRC.P = models.analytical.MRC.E./max(models.analytical.MRC.E);
     models.analytical.MRC.P = [models.analytical.MRC.P 1-models.analytical.MRC.P];
-    models.analytical.MRC.name = 'Maximum Ratio Combining';
+    models.analytical.MRC.name = 'MRC';
 end

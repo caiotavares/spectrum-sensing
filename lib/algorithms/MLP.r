@@ -12,7 +12,8 @@ MLP <- function ()
   inputs = ncol(X.train)-1
   hiddenUnits = inputs
   
-  model <- RSNNS::mlp(X.train[, -ncol(X.train)], RSNNS::decodeClassLabels(X.train$Status), size = hiddenUnits, hiddenActFunc = "Act_Logistic")
+  
+  model <- RSNNS::mlp(x = X.train[, -ncol(X.train)], y = RSNNS::decodeClassLabels(X.train$Status), size = hiddenUnits, hiddenActFunc = "Act_Logistic")
   weights = weightMatrix(model)
   W_hidden <- weights[1:inputs,(inputs+1):(inputs+hiddenUnits)]
   W_output <- weights[(inputs+1):(inputs+hiddenUnits),(inputs+hiddenUnits+1):(inputs+hiddenUnits+2)]
@@ -20,6 +21,6 @@ MLP <- function ()
   R.matlab::writeMat(W_hidden = W_hidden, W_output = W_output, bias = bias, con = "MLP.mat")
 }
 
-path <- paste("C:/Users/", Sys.info()["user"], "/Repositories/mestrado/Spectrum Sensing/data", sep = "")
+path <- paste("C:/Users/", Sys.info()["user"], "/Repositories/mestrado/src/data", sep = "")
 setwd(path)
 msgs <- capture.output(suppressWarnings(suppressMessages(MLP())))
