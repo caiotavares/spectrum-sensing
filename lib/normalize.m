@@ -15,11 +15,16 @@ if manifest.ML.KMeans
    models.Pfa.KMeans = zeros(length(modelsHolder(1).models.ML.KMeans.Pfa),1);
    models.AUC.KMeans = zeros(length(modelsHolder(1).models.ML.KMeans.AUC),1);
 end
-if manifest.ML.SVM
-   models.Pd.SVM = zeros(length(modelsHolder(1).models.ML.SVM.Pd),1);
-   models.Pfa.SVM = zeros(length(modelsHolder(1).models.ML.SVM.Pfa),1);
-   models.AUC.SVM = zeros(length(modelsHolder(1).models.ML.SVM.AUC),1);
+if manifest.ML.LSVM
+   models.Pd.LSVM = zeros(length(modelsHolder(1).models.ML.LSVM.Pd),1);
+   models.Pfa.LSVM = zeros(length(modelsHolder(1).models.ML.LSVM.Pfa),1);
+   models.AUC.LSVM = zeros(length(modelsHolder(1).models.ML.LSVM.AUC),1);
 end
+if manifest.ML.GSVM
+    models.Pd.GSVM = zeros(length(modelsHolder(1).models.ML.GSVM.Pd),1);
+    models.Pfa.GSVM = zeros(length(modelsHolder(1).models.ML.GSVM.Pfa),1);
+    models.AUC.GSVM = zeros(length(modelsHolder(1).models.ML.GSVM.AUC),1);
+ end
 if manifest.ML.MLP
    models.Pd.MLP = zeros(length(modelsHolder(1).models.ML.MLP.Pd),1);
    models.Pfa.MLP = zeros(length(modelsHolder(1).models.ML.MLP.Pfa),1);

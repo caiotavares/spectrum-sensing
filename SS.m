@@ -32,7 +32,7 @@ trainingScenario.realiz = 500;
 train = struct();
 modelsHolder = struct();
 epochs = 20;
-               
+
 %% Spectrum Sensing Procedure
 
 [test.X,test.Y,~,~,~,SNR] = MCS(scenario);
@@ -44,15 +44,12 @@ meanSNRdB = 10*log10(meanSNR);
 
 %% Build models and predict the channel status
 
-% We are averaging the ML models trained over 20 epochs but only testing
-% on the same samples. Not sure if this is a fair comparison to the
-% analytical models.
-
-manifest.analytical.MRC = true;
+manifest.analytical.MRC = false;
 manifest.analytical.WB = false;
 manifest.analytical.GMM = false;
 manifest.ML.NB = true;
-manifest.ML.SVM = true;
+manifest.ML.LSVM = true;
+manifest.ML.GSVM = true;
 manifest.ML.MLP = true;
 manifest.ML.KMeans = false;
 manifest.ML.GMM = false;

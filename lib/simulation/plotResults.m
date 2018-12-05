@@ -110,6 +110,49 @@ end
 % ylabel 'Normalized energy level of SU 2'
 % hold off
 
+%% Training set size comparison
+% figure
+% trainingSamples = [25 50 75 100 500];
+% % Pd = zeros(length(trainingSamples), length(fields(models(1).ML)) );
+% 
+% m1 = load('data/25_ss.mat');
+% m2 = load('data/50_ss.mat');
+% m3 = load('data/75_ss.mat');
+% m4 = load('data/100_ss.mat');
+% m5 = load('data/500_ss.mat');
+% 
+% NB(1) = m1.models.ML.NB.Pd(40);
+% LSVM(1) = m1.models.ML.LSVM.Pd(40);
+% GSVM(1) = m1.models.ML.GSVM.Pd(40);
+% MLP(1) = m1.models.ML.MLP.Pd(40);
+% 
+% NB(2) = m2.models.ML.NB.Pd(40);
+% LSVM(2) = m2.models.ML.LSVM.Pd(40);
+% GSVM(2) = m2.models.ML.GSVM.Pd(40);
+% MLP(2) = m2.models.ML.MLP.Pd(40);
+% 
+% NB(3) = m3.models.ML.NB.Pd(40);
+% LSVM(3) = m3.models.ML.LSVM.Pd(40);
+% GSVM(3) = m3.models.ML.GSVM.Pd(40);
+% MLP(3) = m3.models.ML.MLP.Pd(40);
+% 
+% NB(4) = m4.models.ML.NB.Pd(40);
+% LSVM(4) = m4.models.ML.LSVM.Pd(40);
+% GSVM(4) = m4.models.ML.GSVM.Pd(40);
+% MLP(4) = m4.models.ML.MLP.Pd(40);
+% 
+% NB(5) = m5.models.ML.NB.Pd(40);
+% LSVM(5) = m5.models.ML.LSVM.Pd(40);
+% GSVM(5) = m5.models.ML.GSVM.Pd(40);
+% MLP(5) = m5.models.ML.MLP.Pd(40);
+% 
+% grid on
+% plot(trainingSamples, NB), hold on
+% plot(trainingSamples, LSVM)
+% plot(trainingSamples, GSVM)
+% plot(trainingSamples, MLP)
+% legend('NB', 'Linear-SVM', 'Gaussian-SVM', 'MLP')
+
 
 %% ROC Curve
 

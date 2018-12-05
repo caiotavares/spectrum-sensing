@@ -20,9 +20,16 @@ if (manifest.ML.KMeans)
     models.ML.KMeans = KMeans(train, test);
 end
 
-% Support Vector Machine
-if (manifest.ML.SVM)
-    models.ML.SVM = SVM(train, test);
+% Linear Support Vector Machine
+if (manifest.ML.LSVM)
+    models.ML.LSVM = SVM(train, test, 'linear');
+    models.ML.LSVM.name = 'Linear SVM';
+end
+
+% Gaussian Support Vector Machine
+if (manifest.ML.GSVM)
+    models.ML.GSVM = SVM(train, test, 'gaussian');
+    models.ML.GSVM.name = 'Gaussian SVM';
 end
 
 % Multilayer Perceptron

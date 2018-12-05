@@ -121,13 +121,22 @@ for i=1:length(Pfa_target)
         models.ML.KMeans.Pfa(i) = sum(falseAlarm_kmeans)/(length(Y)-sum(Y));
     end
     
-    % SVM
-    if (ismember('SVM', modelList.ML))
-        status_svm = models.ML.SVM.P(:,models.ML.SVM.positiveClass)>=alpha;
+    % Linear SVM
+    if (ismember('Linear SVM', modelList.ML))
+        status_svm = models.ML.LSVM.P(:,models.ML.LSVM.positiveClass)>=alpha;
         detected_svm = Y & status_svm;
         falseAlarm_svm = logical(status_svm - detected_svm);
-        models.ML.SVM.Pd(i) = sum(detected_svm)/sum(Y);
-        models.ML.SVM.Pfa(i) = sum(falseAlarm_svm)/(length(Y)-sum(Y));
+        models.ML.LSVM.Pd(i) = sum(detected_svm)/sum(Y);
+        models.ML.LSVM.Pfa(i) = sum(falseAlarm_svm)/(length(Y)-sum(Y));
+    end
+
+    % Gaussian SVM
+    if (ismember('Gaussian SVM', modelList.ML))
+        status_svm = models.ML.GSVM.P(:,models.ML.GSVM.positiveClass)>=alpha;
+        detected_svm = Y & status_svm;
+        falseAlarm_svm = logical(status_svm - detected_svm);
+        models.ML.GSVM.Pd(i) = sum(detected_svm)/sum(Y);
+        models.ML.GSVM.Pfa(i) = sum(falseAlarm_svm)/(length(Y)-sum(Y));
     end
     
     % NB
