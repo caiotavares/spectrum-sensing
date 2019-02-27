@@ -22,13 +22,13 @@ end
 
 % Linear Support Vector Machine
 if (manifest.ML.LSVM)
-    models.ML.LSVM = SVM(train, test, 'linear');
+    models.ML.LSVM = LSVM(train, test);
     models.ML.LSVM.name = 'Linear SVM';
 end
 
 % Gaussian Support Vector Machine
 if (manifest.ML.GSVM)
-    models.ML.GSVM = SVM(train, test, 'gaussian');
+    models.ML.GSVM = GSVM(train, test);
     models.ML.GSVM.name = 'Gaussian SVM';
 end
 
@@ -80,9 +80,5 @@ end
 
 % MRC
 if (manifest.analytical.MRC)
-    w = meanSNR;
-    models.analytical.MRC.E = test.X*w./sum(w); % Energy level
-    models.analytical.MRC.P = models.analytical.MRC.E./max(models.analytical.MRC.E);
-    models.analytical.MRC.P = [models.analytical.MRC.P 1-models.analytical.MRC.P];
-    models.analytical.MRC.name = 'MRC';
+    models.analytical.MRC = MRC(meanSNR, test);
 end

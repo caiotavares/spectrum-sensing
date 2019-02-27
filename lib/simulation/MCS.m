@@ -8,6 +8,12 @@ a = 4; % Path-loss exponent
 samples = round(2*scenario.T*scenario.w); % Number of samples
 realiz = scenario.realiz;
 
+if (scenario.fading)
+    fading = 'ray';
+else
+    fading = '';
+end
+
 %% Compute the Euclidean distance for each PU-SU pair
 d = zeros(M,N);
 
@@ -31,7 +37,7 @@ SNR = zeros(N,realiz); % PU SNR at the SU receiver
 
 for k=1:realiz
     n(:,:,k) = gaussianNoise(samples,noisePower); % Get the noise at SU receivers
-    H = channel(M,N,d,a); % Power loss
+    H = channel(M,N,d,a,fading);
     [X, S(k,:)] = PUtx(M,samples,txPower, scenario.Pr); % Get the PU transmissions
     
     for i=1:N
@@ -47,3 +53,7 @@ for k=1:realiz
 end
 
 A = sum(S,2)>0; % Channel availability
+
+
+
+
