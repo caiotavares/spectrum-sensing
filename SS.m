@@ -17,10 +17,13 @@ scenario.T = 5e-6; % SU spectrum sensing period
 scenario.w = 5e6; % SU spectrum sensing bandwidth
 scenario.NoisePSD_dBm = -153;%-153; % Noise PSD in dBm/Hz
 scenario.NoisePower = (10^(scenario.NoisePSD_dBm/10)*1e-3)*scenario.w;
-scenario.fading = false;
+scenario.fading = true;
 
 trainingScenario = scenario;
-trainingScenario.realiz = 500;
+
+%% VARIAR
+trainingScenario.realiz = 50; % 50, 100, 250, 500, 1000
+%% 
 
 train = struct();
 modelsHolder = struct();
