@@ -1,12 +1,12 @@
 function [Y,A,PU,n,Z,SNR] = MCS(scenario)
 
-M = size(scenario.PU,1); % Number of PUs
-N = size(scenario.SU,1); % Number of SUs
-txPower = scenario.TXPower*ones(M,1);
-noisePower = scenario.NoisePower*ones(N,1);
-a = 4; % Path-loss exponent
-samples = round(2*scenario.T*scenario.w); % Number of samples
-realiz = scenario.realiz;
+M = size(scenario.PU,1);                    % Number of PUs
+N = size(scenario.SU,1);                    % Number of SUs
+txPower = scenario.TXPower*ones(M,1);       % Transmission power
+noisePower = scenario.NoisePower*ones(N,1); % Gaussian noise power
+a = 4;                                      % Path-loss exponent
+samples = round(2*scenario.T*scenario.w);   % Number of samples
+realiz = scenario.realiz;                   % Number of Monte-Carlo realizations
 
 if (scenario.fading)
     fading = 'ray';
@@ -28,16 +28,16 @@ end
 
 %% Main
 
-Y = zeros(realiz,N); % Power estimated
-S = zeros(realiz,M); % Channel availability
-PU = zeros(N,samples,realiz); % PUs signal received at SU
-n = zeros(N,samples,realiz); % Noise received at SU
-Z = zeros(N,samples,realiz); % PU signal + noise received at SU
-SNR = zeros(N,realiz); % PU SNR at the SU receiver
+Y = zeros(realiz,N);                        % Power estimated
+S = zeros(realiz,M);                        % Channel availability
+PU = zeros(N,samples,realiz);               % PUs signal received at SU
+n = zeros(N,samples,realiz);                % Noise received at SU
+Z = zeros(N,samples,realiz);                % PU signal + noise received at SU
+SNR = zeros(N,realiz);                      % PU SNR at the SU receiver
 
 for k=1:realiz
-    n(:,:,k) = gaussianNoise(samples,noisePower); % Get the noise at SU receivers
-    H = channel(M,N,d,a,fading);
+    n(:,:,k) = gaussianNoise(samples,noisePower);       % Get the noise at SU receivers
+    H = channel(M,N,d,a,fading);                        % Get the channel matrix
     [X, S(k,:)] = PUtx(M,samples,txPower, scenario.Pr); % Get the PU transmissions
     
     for i=1:N

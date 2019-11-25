@@ -7,23 +7,20 @@ if (exist('data','dir') ~= 7)
 end
 addpath('data');
 
-% Scenario 1
-scenario.PU = [0 0]*1e3;
-scenario.SU = [0 0.5 ; 0 0.75 ; 0 1]*1e3;
-scenario.Pr = 0.5;
-scenario.TXPower = 0.1; % PU transmission power in W
-scenario.realiz = 5e4; % MCS realization
-scenario.T = 5e-6; % SU spectrum sensing period
-scenario.w = 5e6; % SU spectrum sensing bandwidth
-scenario.NoisePSD_dBm = -153;%-153; % Noise PSD in dBm/Hz
+% Simulation Scenario
+scenario.PU = [0 0]*1e3; 					% PU cartesian position in meters
+scenario.SU = [0 0.5 ; 0 0.75 ; 0 1]*1e3; 	% SU cartesian position in meters
+scenario.Pr = 0.5; 							% PU transmission probability
+scenario.TXPower = 0.1; 					% PU transmission power in W
+scenario.realiz = 5e4; 						% MCS realization
+scenario.T = 5e-6; 							% SU spectrum sensing period in seconds
+scenario.w = 5e6; 							% SU spectrum sensing bandwidth in hertz
+scenario.NoisePSD_dBm = -153; 				% Noise PSD in dBm/Hz
 scenario.NoisePower = (10^(scenario.NoisePSD_dBm/10)*1e-3)*scenario.w;
-scenario.fading = true;
+scenario.fading = true; % Adds Rayleigh fading to the received signals
 
 trainingScenario = scenario;
-
-%% VARIAR
-trainingScenario.realiz = 50; % 50, 100, 250, 500, 1000
-%% 
+trainingScenario.realiz = 1000; 			% Training samples
 
 train = struct();
 modelsHolder = struct();
@@ -41,14 +38,14 @@ meanSNRdB = 10*log10(meanSNR);
 %% Build models and predict the channel status
 
 manifest.analytical.MRC = true;
-manifest.analytical.WB = false;
+manifest.analytical.WB 	= false;
 manifest.analytical.GMM = false;
-manifest.ML.NB = true;
-manifest.ML.LSVM = true;
-manifest.ML.GSVM = true;
-manifest.ML.MLP = true;
-manifest.ML.KMeans = false;
-manifest.ML.GMM = false;
+manifest.ML.NB 			= true;
+manifest.ML.LSVM 		= true;
+manifest.ML.GSVM 		= true;
+manifest.ML.MLP 		= true;
+manifest.ML.KMeans 		= false;
+manifest.ML.GMM 		= false;
 
 for i=1:epochs
     profile on;

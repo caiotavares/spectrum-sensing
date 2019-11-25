@@ -9,7 +9,7 @@ function [X,S] = PUtx(M,samples,txPower, Pr)
 % Pr - Active probability for each PU
 
 if (length(Pr) ~= M)
-    error('Erro in the probability vector')
+    error('Error in the probability vector')
 end
 
 S = zeros(1,M); % PU states

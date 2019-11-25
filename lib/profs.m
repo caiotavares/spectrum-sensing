@@ -1,4 +1,7 @@
 function profs = profs(info, manifest)
+%
+% profs - Profiler to measure models computational performance
+%
 
 if (manifest.analytical.MRC)
     profs.MRC.time = 0;
