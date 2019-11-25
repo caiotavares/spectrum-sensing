@@ -11,6 +11,7 @@ NB <- function()
   model <- naiveBayes(x = X.train[, -ncol(X.train)], y = X.train$Status, laplace = 0, type = "raw")
 }
 
-path <- paste("C:/Users/", Sys.info()["user"], "/Repositories/mestrado/src/data", sep = "")
+cur_dir <- getwd()
+path <- paste(cur_dir, "/data", sep = "")
 setwd(path)
 msgs <- capture.output(suppressWarnings(suppressMessages(NB())))

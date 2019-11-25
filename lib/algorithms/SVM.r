@@ -12,6 +12,7 @@ SVM <- function()
   model <- svm(x = X.train[,-ncol(X.train)], y = X.train$Status, kernel = "linear", type = "C-classification", probability = 1)
 }
 
-path <- paste("C:/Users/", Sys.info()["user"], "/Repositories/mestrado/src/data", sep = "")
+cur_dir <- getwd()
+path <- paste(cur_dir, "/data", sep = "")
 setwd(path)
 msgs <- capture.output(suppressWarnings(suppressMessages(SVM())))

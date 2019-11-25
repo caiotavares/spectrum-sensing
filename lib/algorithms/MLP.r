@@ -20,6 +20,7 @@ MLP <- function ()
   R.matlab::writeMat(W_hidden = W_hidden, W_output = W_output, bias = bias, con = "MLP.mat")
 }
 
-path <- paste("C:/Users/", Sys.info()["user"], "/Repositories/mestrado/src/data", sep = "")
+cur_dir <- getwd()
+path <- paste(cur_dir, "/data", sep = "")
 setwd(path)
 msgs <- capture.output(suppressWarnings(suppressMessages(MLP())))
