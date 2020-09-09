@@ -3,6 +3,8 @@
 This code was developed during my Master's Degree in Electrical Engineering.
 It's not generalized nor fully self-explanatory yet, but might be useful for simulations of spectrum sensing.
 
+For more information regarding the simulation results and setup, checkout my article [Machine learning-based models for spectrum sensing in cooperative radio networks](https://doi.org/10.1049/iet-com.2019.0941)
+
 ---
 ## Requirements
 
