@@ -1,3 +1,5 @@
+⚠️ _This repository is no longer being actively maintained_
+
 # Spectrum Sensing with Machine Learning Models
 
 This code was developed during my Master's Degree in Electrical Engineering.
